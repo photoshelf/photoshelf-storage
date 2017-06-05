@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/labstack/gommon"
   packages = ["color","log"]
-  revision = "1121fd3e243c202482226a7afe4dcd07ffc4139a"
-  version = "v0.2.1"
+  revision = "779b8a8b9850a97acba6a3fe20feb628c39e17c1"
+  version = "0.2.2"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -41,17 +41,17 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert"]
-  revision = "08a7dbd3d99261d9ae86ef1b3b8bdb0382fb82cd"
+  revision = "558b6879de74bc843225cde5686419267ff707ca"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "abf9c25f54453410d0c6668e519582a9e1115027"
+  revision = "0f826bdd13b500be0f1d4004938ad978fcc6031e"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3acd9a6464b396e8e7a744414c1dc630319f01c4c1476ced8fee668a8f489378"
+  inputs-digest = "895715ac310be5633e6dd4a6dfd62c12cf1e42dab9233911e34bc41a504b9df0"
   solver-name = "gps-cdcl"
   solver-version = 1

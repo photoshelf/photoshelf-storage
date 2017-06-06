@@ -7,13 +7,20 @@ import (
 	"io/ioutil"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
+	"crypto/md5"
+	"fmt"
+	"time"
 )
+
+type Created struct {
+	Id string
+}
 
 func main() {
 	e := echo.New()
 
-	e.GET("/:filename", func(c echo.Context) error {
-		file, err := os.Open(c.Param("filename"))
+	e.GET("/:id", func(c echo.Context) error {
+		file, err := os.Open(c.Param("id"))
 		if err != nil {
 			log.Error(err)
 			return err
@@ -40,7 +47,15 @@ func main() {
 		}
 		defer src.Close()
 
-		dst, err := os.Create(photo.Filename)
+		data, err := ioutil.ReadAll(src)
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+
+		dataHash := fmt.Sprintf("%x", md5.Sum(data))
+		filename := fmt.Sprintf("%x", md5.Sum([]byte(dataHash + time.Now().String())))
+		dst, err := os.Create(filename)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -52,10 +67,10 @@ func main() {
 			return err
 		}
 
-		return c.NoContent(http.StatusCreated)
+		return c.JSON(http.StatusCreated, Created{filename})
 	})
 
-	e.PUT("/:filename", func(c echo.Context) error {
+	e.PUT("/:id", func(c echo.Context) error {
 		photo, err := c.FormFile("photo")
 		if err != nil {
 			log.Error(err)
@@ -68,7 +83,7 @@ func main() {
 		}
 		defer src.Close()
 
-		dst, err := os.Create(c.Param("filename"))
+		dst, err := os.Create(c.Param("id"))
 		if err != nil {
 			log.Error(err)
 			return err
@@ -83,8 +98,8 @@ func main() {
 		return c.NoContent(http.StatusOK)
 	})
 
-	e.DELETE("/:filename", func(c echo.Context) error {
-		if err := os.Remove(c.Param("filename")); err != nil {
+	e.DELETE("/:id", func(c echo.Context) error {
+		if err := os.Remove(c.Param("id")); err != nil {
 			log.Error(err)
 			return err
 		}
@@ -92,5 +107,5 @@ func main() {
 		return c.NoContent(http.StatusOK)
 	})
 
-	e.Logger.Debug(e.Start(":1323"))
+	e.Logger.Debug(e.Start())
 }

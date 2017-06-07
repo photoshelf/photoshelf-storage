@@ -10,6 +10,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"time"
+	"flag"
 )
 
 type Created struct {
@@ -17,6 +18,9 @@ type Created struct {
 }
 
 func main() {
+	port := flag.Int("port", 1323, "port number")
+	flag.Parse()
+
 	e := echo.New()
 
 	e.GET("/:id", func(c echo.Context) error {
@@ -107,5 +111,6 @@ func main() {
 		return c.NoContent(http.StatusOK)
 	})
 
-	e.Logger.Debug(e.Start())
+	address := fmt.Sprintf(":%d", *port)
+	e.Logger.Debug(e.Start(address))
 }

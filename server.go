@@ -11,14 +11,32 @@ import (
 	"fmt"
 	"time"
 	"flag"
+	"gopkg.in/yaml.v2"
 )
 
 type Created struct {
 	Id string
 }
 
+type Configuration struct {
+	Server struct {
+		Port int
+	}
+}
+
 func main() {
-	port := flag.Int("port", 1323, "port number")
+	configurationFile, err := ioutil.ReadFile("./application.yml")
+	if err != nil {
+		log.Warn(err)
+	}
+
+	configuration := Configuration{}
+	if err := yaml.Unmarshal(configurationFile, &configuration); err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	port := flag.Int("port", configuration.Server.Port, "port number")
 	flag.Parse()
 
 	e := echo.New()

@@ -1,18 +1,18 @@
 package main
 
 import (
-	"net/http"
-	"os"
-	"io"
-	"io/ioutil"
+	"crypto/md5"
+	"flag"
+	"fmt"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
-	"crypto/md5"
-	"fmt"
-	"time"
-	"flag"
 	"gopkg.in/yaml.v2"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"path"
+	"time"
 )
 
 type Created struct {
@@ -80,7 +80,7 @@ func main() {
 		}
 
 		dataHash := fmt.Sprintf("%x", md5.Sum(data))
-		filename := fmt.Sprintf("%x", md5.Sum([]byte(dataHash + time.Now().String())))
+		filename := fmt.Sprintf("%x", md5.Sum([]byte(dataHash+time.Now().String())))
 		dst, err := os.Create(path.Join(configuration.Storage.Directory, filename))
 		if err != nil {
 			log.Error(err)

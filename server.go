@@ -12,6 +12,7 @@ import (
 	"time"
 	"flag"
 	"gopkg.in/yaml.v2"
+	"path"
 )
 
 type Created struct {
@@ -21,6 +22,9 @@ type Created struct {
 type Configuration struct {
 	Server struct {
 		Port int
+	}
+	Storage struct {
+		Directory string
 	}
 }
 
@@ -42,7 +46,7 @@ func main() {
 	e := echo.New()
 
 	e.GET("/:id", func(c echo.Context) error {
-		file, err := os.Open(c.Param("id"))
+		file, err := os.Open(path.Join(configuration.Storage.Directory, c.Param("id")))
 		if err != nil {
 			log.Error(err)
 			return err
@@ -77,7 +81,7 @@ func main() {
 
 		dataHash := fmt.Sprintf("%x", md5.Sum(data))
 		filename := fmt.Sprintf("%x", md5.Sum([]byte(dataHash + time.Now().String())))
-		dst, err := os.Create(filename)
+		dst, err := os.Create(path.Join(configuration.Storage.Directory, filename))
 		if err != nil {
 			log.Error(err)
 			return err
@@ -105,7 +109,7 @@ func main() {
 		}
 		defer src.Close()
 
-		dst, err := os.Create(c.Param("id"))
+		dst, err := os.Create(path.Join(configuration.Storage.Directory, c.Param("id")))
 		if err != nil {
 			log.Error(err)
 			return err
@@ -121,7 +125,7 @@ func main() {
 	})
 
 	e.DELETE("/:id", func(c echo.Context) error {
-		if err := os.Remove(c.Param("id")); err != nil {
+		if err := os.Remove(path.Join(configuration.Storage.Directory, c.Param("id"))); err != nil {
 			log.Error(err)
 			return err
 		}

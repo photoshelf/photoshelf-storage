@@ -53,7 +53,7 @@ func main() {
 		}
 		data, err := ioutil.ReadAll(file)
 		if err != nil {
-			log.Error(data)
+			log.Error(err)
 			return err
 		}
 		mimeType := http.DetectContentType(data)

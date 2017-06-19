@@ -88,7 +88,7 @@ func main() {
 		}
 		defer dst.Close()
 
-		if _, err = io.Copy(dst, src); err != nil {
+		if _, err := dst.Write(data); err != nil {
 			log.Error(err)
 			return err
 		}

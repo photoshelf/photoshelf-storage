@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+type CustomContext struct {
+	echo.Context
+	conf Configuration
+}
+
 type Created struct {
 	Id string
 }
@@ -26,6 +31,102 @@ type Configuration struct {
 	Storage struct {
 		Directory string
 	}
+}
+
+func get(c echo.Context) error {
+	cc := c.(*CustomContext)
+
+	file, err := os.Open(path.Join(cc.conf.Storage.Directory, c.Param("id")))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	mimeType := http.DetectContentType(data)
+	return c.Blob(http.StatusOK, mimeType, data)
+}
+
+func post(c echo.Context) error {
+	cc := c.(*CustomContext)
+
+	photo, err := c.FormFile("photo")
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	src, err := photo.Open()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer src.Close()
+
+	data, err := ioutil.ReadAll(src)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	dataHash := fmt.Sprintf("%x", md5.Sum(data))
+	filename := fmt.Sprintf("%x", md5.Sum([]byte(dataHash+time.Now().String())))
+	dst, err := os.Create(path.Join(cc.conf.Storage.Directory, filename))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer dst.Close()
+
+	if _, err := dst.Write(data); err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return c.JSON(http.StatusCreated, Created{filename})
+}
+
+func put(c echo.Context) error {
+	cc := c.(*CustomContext)
+
+	photo, err := c.FormFile("photo")
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	src, err := photo.Open()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer src.Close()
+
+	dst, err := os.Create(path.Join(cc.conf.Storage.Directory, c.Param("id")))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer dst.Close()
+
+	if _, err = io.Copy(dst, src); err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func delete(c echo.Context) error {
+	cc := c.(*CustomContext)
+
+	if err := os.Remove(path.Join(cc.conf.Storage.Directory, c.Param("id"))); err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func main() {
@@ -45,93 +146,17 @@ func main() {
 
 	e := echo.New()
 
-	e.GET("/:id", func(c echo.Context) error {
-		file, err := os.Open(path.Join(configuration.Storage.Directory, c.Param("id")))
-		if err != nil {
-			log.Error(err)
-			return err
+	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cc := &CustomContext{c, configuration}
+			return h(cc)
 		}
-		data, err := ioutil.ReadAll(file)
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		mimeType := http.DetectContentType(data)
-		return c.Blob(http.StatusOK, mimeType, data)
 	})
 
-	e.POST("/", func(c echo.Context) error {
-		photo, err := c.FormFile("photo")
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		src, err := photo.Open()
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		defer src.Close()
-
-		data, err := ioutil.ReadAll(src)
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-
-		dataHash := fmt.Sprintf("%x", md5.Sum(data))
-		filename := fmt.Sprintf("%x", md5.Sum([]byte(dataHash+time.Now().String())))
-		dst, err := os.Create(path.Join(configuration.Storage.Directory, filename))
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		defer dst.Close()
-
-		if _, err := dst.Write(data); err != nil {
-			log.Error(err)
-			return err
-		}
-
-		return c.JSON(http.StatusCreated, Created{filename})
-	})
-
-	e.PUT("/:id", func(c echo.Context) error {
-		photo, err := c.FormFile("photo")
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		src, err := photo.Open()
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		defer src.Close()
-
-		dst, err := os.Create(path.Join(configuration.Storage.Directory, c.Param("id")))
-		if err != nil {
-			log.Error(err)
-			return err
-		}
-		defer dst.Close()
-
-		if _, err = io.Copy(dst, src); err != nil {
-			log.Error(err)
-			return err
-		}
-
-		return c.NoContent(http.StatusOK)
-	})
-
-	e.DELETE("/:id", func(c echo.Context) error {
-		if err := os.Remove(path.Join(configuration.Storage.Directory, c.Param("id"))); err != nil {
-			log.Error(err)
-			return err
-		}
-
-		return c.NoContent(http.StatusOK)
-	})
+	e.GET("/:id", get)
+	e.POST("/", post)
+	e.PUT("/:id", put)
+	e.DELETE("/:id", delete)
 
 	address := fmt.Sprintf(":%d", *port)
 	e.Logger.Debug(e.Start(address))

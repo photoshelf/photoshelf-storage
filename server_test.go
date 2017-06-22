@@ -29,7 +29,7 @@ func TestGet(t *testing.T) {
 	data, _ := ioutil.ReadAll(body)
 
 	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/", body)
+	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetPath("/users/:id")

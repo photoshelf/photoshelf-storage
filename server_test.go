@@ -11,20 +11,21 @@ import (
 	"testing"
 )
 
+var conf = Configuration{
+	Server: struct {
+		Port int
+	}{
+		1234,
+	},
+	Storage: struct {
+		Directory string
+	}{
+		"testdata",
+	},
+}
+
 func TestGet(t *testing.T) {
 	// Setup
-	conf := Configuration{
-		Server: struct {
-			Port int
-		}{
-			1234,
-		},
-		Storage: struct {
-			Directory string
-		}{
-			"testdata",
-		},
-	}
 	body, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(body)
 

@@ -33,7 +33,6 @@ func TestGet(t *testing.T) {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/users/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
 	cc := &CustomContext{c, conf}

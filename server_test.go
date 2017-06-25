@@ -80,3 +80,37 @@ func TestPost(t *testing.T) {
 		assert.Equal(t, actual, data)
 	}
 }
+
+func TestPut(t *testing.T) {
+	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	data, _ := ioutil.ReadAll(file)
+	file.Close()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("photo", file.Name())
+	part.Write(data)
+	writer.Close()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.PUT, "/", body)
+	req.Header.Add("Content-Type", writer.FormDataContentType())
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("test")
+	cc := &CustomContext{c, conf}
+
+	err := put(cc)
+
+	actualFile, _ := os.Open(path.Join(conf.Storage.Directory, "test"))
+	actual, _ := ioutil.ReadAll(actualFile)
+
+	// Assertions
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, actual, data)
+	}
+}

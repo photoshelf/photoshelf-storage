@@ -9,6 +9,9 @@ import (
 	"os"
 	"path"
 	"testing"
+	"mime/multipart"
+	"bytes"
+	"encoding/json"
 )
 
 var conf = Configuration{
@@ -41,5 +44,39 @@ func TestGet(t *testing.T) {
 	if assert.NoError(t, get(cc)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, data, rec.Body.Bytes())
+	}
+}
+
+func TestPost(t *testing.T) {
+	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	data, _ := ioutil.ReadAll(file)
+	file.Close()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("photo", file.Name())
+	part.Write(data)
+	writer.Close()
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", body)
+	req.Header.Add("Content-Type", writer.FormDataContentType())
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	cc := &CustomContext{c, conf}
+
+	err := post(cc)
+
+	var res map[string]string
+	json.Unmarshal(rec.Body.Bytes(), &res)
+
+	actualFile, _ := os.Open(path.Join(conf.Storage.Directory, res["Id"]))
+	actual, _ := ioutil.ReadAll(actualFile)
+
+	// Assertions
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusCreated, rec.Code)
+		assert.Equal(t, actual, data)
 	}
 }

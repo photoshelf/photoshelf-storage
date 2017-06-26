@@ -12,6 +12,7 @@ import (
 	"mime/multipart"
 	"bytes"
 	"encoding/json"
+	"io"
 )
 
 var conf = Configuration{
@@ -112,5 +113,33 @@ func TestPut(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, actual, data)
+	}
+}
+
+func TestDelete(t *testing.T) {
+	src, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	src.Close()
+
+	dst, _ := os.Create(path.Join(conf.Storage.Directory, "test"))
+	dst.Close()
+
+	io.Copy(dst, src)
+
+	e := echo.New()
+	req := httptest.NewRequest(echo.DELETE, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("test")
+	cc := &CustomContext{c, conf}
+
+	err := delete(cc)
+	_, exist := os.Stat(path.Join(conf.Storage.Directory, "test"))
+
+	// Assertions
+	if assert.NoError(t, err) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Error(t, exist)
 	}
 }

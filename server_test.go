@@ -157,6 +157,20 @@ func TestPut(t *testing.T) {
 	}
 }
 
+func TestPutWithoutData(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.PUT, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
+	cc := &CustomContext{c, conf}
+
+	// Assertions
+	assert.Error(t, post(cc))
+}
+
 func TestDelete(t *testing.T) {
 	src, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
 	src.Close()

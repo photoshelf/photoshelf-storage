@@ -48,6 +48,36 @@ func TestGet(t *testing.T) {
 	}
 }
 
+func TestGetNotFound(t *testing.T) {
+	// Setup
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("not_found")
+	cc := &CustomContext{c, conf}
+
+	// Assertions
+	assert.Error(t, get(cc))
+}
+
+func TestGetDirectory(t *testing.T) {
+	// Setup
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("dir")
+	cc := &CustomContext{c, conf}
+
+	// Assertions
+	assert.Error(t, get(cc))
+}
+
 func TestPost(t *testing.T) {
 	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(file)

@@ -112,6 +112,17 @@ func TestPost(t *testing.T) {
 	}
 }
 
+func TestPostWithoutData(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.POST, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	cc := &CustomContext{c, conf}
+
+	// Assertions
+	assert.Error(t, post(cc))
+}
+
 func TestPut(t *testing.T) {
 	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(file)

@@ -198,3 +198,16 @@ func TestDelete(t *testing.T) {
 		assert.Error(t, exist)
 	}
 }
+
+func TestDeleteWithoutFile(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.DELETE, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/:id")
+	c.SetParamNames("id")
+	c.SetParamValues("test")
+	cc := &CustomContext{c, conf}
+
+	assert.Error(t, delete(cc))
+}

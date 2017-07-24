@@ -24,10 +24,6 @@ type Created struct {
 	Id string
 }
 
-type PhotoList struct {
-	 Ids []string
-}
-
 type Configuration struct {
 	Server struct {
 		Port int
@@ -52,22 +48,6 @@ func get(c echo.Context) error {
 	}
 	mimeType := http.DetectContentType(data)
 	return c.Blob(http.StatusOK, mimeType, data)
-}
-
-func list(c echo.Context) error {
-	cc := c.(*CustomContext)
-
-	files, err := ioutil.ReadDir(cc.conf.Storage.Directory)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	names := []string{}
-	for _, file := range files {
-		names = append(names, file.Name())
-	}
-
-	return c.JSON(http.StatusOK, PhotoList{names})
 }
 
 func post(c echo.Context) error {
@@ -174,7 +154,6 @@ func main() {
 	})
 
 	e.GET("/:id", get)
-	e.GET("/", list)
 	e.POST("/", post)
 	e.PUT("/:id", put)
 	e.DELETE("/:id", delete)

@@ -78,24 +78,6 @@ func TestGetDirectory(t *testing.T) {
 	assert.Error(t, get(cc))
 }
 
-func TestList(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	cc := &CustomContext{c, conf}
-
-	// Assertions
-	if assert.NoError(t, list(cc)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-
-		data := make(map[string]interface{})
-		assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &data))
-
-		assert.Contains(t, data["Ids"], "e3158990bdee63f8594c260cd51a011d")
-	}
-}
-
 func TestPost(t *testing.T) {
 	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(file)

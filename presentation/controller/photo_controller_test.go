@@ -1,18 +1,18 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path"
 	"testing"
-	"mime/multipart"
-	"bytes"
-	"encoding/json"
-	"io"
 )
 
 var conf = Configuration{
@@ -39,7 +39,7 @@ func TestGet(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
 	if assert.NoError(t, get(cc)) {
@@ -57,7 +57,7 @@ func TestGetNotFound(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("not_found")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
 	assert.Error(t, get(cc))
@@ -72,7 +72,7 @@ func TestGetDirectory(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("dir")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
 	assert.Error(t, get(cc))
@@ -95,7 +95,7 @@ func TestPost(t *testing.T) {
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	err := post(cc)
 
@@ -117,7 +117,7 @@ func TestPostWithoutData(t *testing.T) {
 	req := httptest.NewRequest(echo.POST, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
 	assert.Error(t, post(cc))
@@ -143,7 +143,7 @@ func TestPut(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("test")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	err := put(cc)
 
@@ -165,7 +165,7 @@ func TestPutWithoutData(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
 	assert.Error(t, post(cc))
@@ -187,7 +187,7 @@ func TestDelete(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("test")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	err := delete(cc)
 	_, exist := os.Stat(path.Join(conf.Storage.Directory, "test"))
@@ -207,7 +207,7 @@ func TestDeleteWithoutFile(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("test")
-	cc := &CustomContext{c, conf}
+	cc := &CustomContext{c, conf, nil}
 
 	assert.Error(t, delete(cc))
 }

@@ -12,22 +12,13 @@ import (
 	"github.com/duck8823/photoshelf-storage/presentation/controller"
 )
 
-type Configuration struct {
-	Server struct {
-		Port int
-	}
-	Storage struct {
-		Directory string
-	}
-}
-
 func main() {
 	configurationFile, err := ioutil.ReadFile("./application.yml")
 	if err != nil {
 		log.Warn(err)
 	}
 
-	configuration := &Configuration{}
+	configuration := &infrastructure.Configuration{}
 	if err := yaml.Unmarshal(configurationFile, configuration); err != nil {
 		log.Fatal(err)
 		return

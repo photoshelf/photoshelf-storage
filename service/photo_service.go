@@ -12,8 +12,8 @@ func NewPhotoService(repository model.Repository) *PhotoService {
 	return &PhotoService{repository}
 }
 
-func (service *PhotoService) Save(photo *model.Photo) (*model.Identifier, error) {
-	return service.Save(photo)
+func (service *PhotoService) Save(photo model.Photo) (*model.Identifier, error) {
+	return service.repository.Save(photo)
 }
 
 func (service *PhotoService) Find(id model.Identifier) (*model.Photo, error) {
@@ -21,5 +21,5 @@ func (service *PhotoService) Find(id model.Identifier) (*model.Photo, error) {
 }
 
 func (service *PhotoService) Delete(id model.Identifier) error {
-	return service.Delete(id)
+	return service.repository.Delete(id)
 }

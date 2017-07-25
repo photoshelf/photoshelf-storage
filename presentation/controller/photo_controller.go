@@ -44,7 +44,7 @@ func (controller *PhotoController) Post(c echo.Context) error {
 	}
 
 	photo := model.NewPhoto(data)
-	id, err := controller.service.Save(photo)
+	id, err := controller.service.Save(*photo)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -67,7 +67,7 @@ func (controller *PhotoController) Put(c echo.Context) error {
 	}
 
 	id := model.IdentifierOf(c.Param("id"))
-	if _, err := controller.service.Save(model.PhotoOf(*id, data)); err != nil {
+	if _, err := controller.service.Save(*model.PhotoOf(*id, data)); err != nil {
 		log.Error(err)
 		return err
 	}

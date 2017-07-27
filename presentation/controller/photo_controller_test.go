@@ -1,4 +1,4 @@
-package main
+package controller
 
 import (
 	"bytes"
@@ -13,9 +13,11 @@ import (
 	"os"
 	"path"
 	"testing"
+	"github.com/duck8823/photoshelf-storage/infrastructure"
+	"github.com/duck8823/photoshelf-storage/service"
 )
 
-var conf = Configuration{
+var conf = infrastructure.Configuration{
 	Server: struct {
 		Port int
 	}{
@@ -24,9 +26,13 @@ var conf = Configuration{
 	Storage: struct {
 		Directory string
 	}{
-		"testdata",
+		path.Join(os.Getenv("GOPATH"), "src/github.com/duck8823/photoshelf-storage", "testdata"),
 	},
 }
+
+var repository = infrastructure.NewFileStorage(conf.Storage.Directory)
+var photoService = service.NewPhotoService(repository)
+var photoController = NewPhotoController(*photoService)
 
 func TestGet(t *testing.T) {
 	// Setup
@@ -39,10 +45,9 @@ func TestGet(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
-	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
-	if assert.NoError(t, get(cc)) {
+	if assert.NoError(t, photoController.Get(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, data, rec.Body.Bytes())
 	}
@@ -57,10 +62,9 @@ func TestGetNotFound(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("not_found")
-	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
-	assert.Error(t, get(cc))
+	assert.Error(t, photoController.Get(c))
 }
 
 func TestGetDirectory(t *testing.T) {
@@ -72,10 +76,9 @@ func TestGetDirectory(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("dir")
-	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
-	assert.Error(t, get(cc))
+	assert.Error(t, photoController.Get(c))
 }
 
 func TestPost(t *testing.T) {
@@ -95,9 +98,8 @@ func TestPost(t *testing.T) {
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	cc := &CustomContext{c, conf, nil}
 
-	err := post(cc)
+	err := photoController.Post(c)
 
 	var res map[string]string
 	json.Unmarshal(rec.Body.Bytes(), &res)
@@ -117,10 +119,9 @@ func TestPostWithoutData(t *testing.T) {
 	req := httptest.NewRequest(echo.POST, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
-	assert.Error(t, post(cc))
+	assert.Error(t, photoController.Post(c))
 }
 
 func TestPut(t *testing.T) {
@@ -143,9 +144,8 @@ func TestPut(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("test")
-	cc := &CustomContext{c, conf, nil}
 
-	err := put(cc)
+	err := photoController.Put(c)
 
 	actualFile, _ := os.Open(path.Join(conf.Storage.Directory, "test"))
 	actual, _ := ioutil.ReadAll(actualFile)
@@ -165,10 +165,9 @@ func TestPutWithoutData(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
-	cc := &CustomContext{c, conf, nil}
 
 	// Assertions
-	assert.Error(t, post(cc))
+	assert.Error(t, photoController.Put(c))
 }
 
 func TestDelete(t *testing.T) {
@@ -187,9 +186,8 @@ func TestDelete(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("test")
-	cc := &CustomContext{c, conf, nil}
 
-	err := delete(cc)
+	err := photoController.Delete(c)
 	_, exist := os.Stat(path.Join(conf.Storage.Directory, "test"))
 
 	// Assertions
@@ -207,7 +205,6 @@ func TestDeleteWithoutFile(t *testing.T) {
 	c.SetPath("/:id")
 	c.SetParamNames("id")
 	c.SetParamValues("test")
-	cc := &CustomContext{c, conf, nil}
 
-	assert.Error(t, delete(cc))
+	assert.Error(t, photoController.Delete(c))
 }

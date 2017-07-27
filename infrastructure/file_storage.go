@@ -2,9 +2,9 @@ package infrastructure
 
 import (
 	"github.com/duck8823/photoshelf-storage/model"
+	"io/ioutil"
 	"os"
 	"path"
-	"io/ioutil"
 )
 
 type FileStorage struct {

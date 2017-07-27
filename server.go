@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/duck8823/photoshelf-storage/infrastructure"
+	"github.com/duck8823/photoshelf-storage/presentation/controller"
 	"github.com/duck8823/photoshelf-storage/service"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"github.com/duck8823/photoshelf-storage/infrastructure"
-	"github.com/duck8823/photoshelf-storage/presentation/controller"
 )
 
 func main() {

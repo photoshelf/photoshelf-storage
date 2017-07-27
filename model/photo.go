@@ -1,7 +1,7 @@
 package model
 
 type Photo struct {
-	id Identifier
+	id    Identifier
 	image []byte
 }
 

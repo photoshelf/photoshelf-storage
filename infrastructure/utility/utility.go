@@ -1,8 +1,8 @@
 package utility
 
 import (
-	"mime/multipart"
 	"io/ioutil"
+	"mime/multipart"
 )
 
 func Read(header multipart.FileHeader) ([]byte, error) {

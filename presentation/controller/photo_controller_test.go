@@ -3,6 +3,8 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/duck8823/photoshelf-storage/infrastructure"
+	"github.com/duck8823/photoshelf-storage/service"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"io"
@@ -13,8 +15,6 @@ import (
 	"os"
 	"path"
 	"testing"
-	"github.com/duck8823/photoshelf-storage/infrastructure"
-	"github.com/duck8823/photoshelf-storage/service"
 )
 
 var conf = infrastructure.Configuration{

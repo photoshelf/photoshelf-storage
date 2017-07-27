@@ -1,8 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"crypto/md5"
+	"fmt"
 	"time"
 )
 

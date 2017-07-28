@@ -3,8 +3,8 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/duck8823/photoshelf-storage/infrastructure"
-	"github.com/duck8823/photoshelf-storage/service"
+	"github.com/photoshelf/photoshelf-storage/infrastructure"
+	"github.com/photoshelf/photoshelf-storage/service"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"io"
@@ -26,7 +26,7 @@ var conf = infrastructure.Configuration{
 	Storage: struct {
 		Directory string
 	}{
-		path.Join(os.Getenv("GOPATH"), "src/github.com/duck8823/photoshelf-storage", "testdata"),
+		path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata"),
 	},
 }
 

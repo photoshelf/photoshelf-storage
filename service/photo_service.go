@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/duck8823/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/model"
 )
 
 type PhotoService struct {

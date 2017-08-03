@@ -13,6 +13,6 @@ RUN dep ensure
 
 RUN go build
 
-EXPOSE 1324:1324
+EXPOSE 1323:1323
 
 CMD ["./photoshelf-storage"]

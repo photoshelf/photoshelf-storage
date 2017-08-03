@@ -6,4 +6,4 @@ before_install:
 - docker build -t photoshelf/photoshelf-storage .
 
 script:
-- docker run --rm photoshelf/photoshelf-storage goveralls -service=travis-ci
+- docker run --rm photoshelf/photoshelf-storage goveralls -repotoken $COVERALLS_TOKEN

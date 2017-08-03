@@ -1,8 +1,9 @@
-language: go
-sudo: false
-go:
-  - tip
+sudo: required
+services:
+  - docker
+
 before_install:
-  - go get github.com/mattn/goveralls
+- docker build -t photoshelf/photoshelf-storage .
+
 script:
-  - $GOPATH/bin/goveralls -service=travis-ci
+- docker run --rm photoshelf/photoshelf-storage goveralls -service=travis-ci

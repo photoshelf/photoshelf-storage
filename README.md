@@ -25,3 +25,10 @@ and run
 docker build -t photoshelf/photoshelf-storage .
 docker run -p 1323:1323 photoshelf/photoshelf-storage
 ```
+
+## License
+MIT License
+
+Copyright (c) 2017 Shunsuke Maeda
+
+See [LICENSE](./LICENSE) file

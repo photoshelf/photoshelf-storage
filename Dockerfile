@@ -3,7 +3,6 @@ MAINTAINER shunsuke maeda <duck8823@gmail.com>
 
 RUN apk --update add --no-cache git
 
-RUN mkdir -p /go/src/github.com/photoshelf/photoshelf-storage/images
 WORKDIR /go/src/github.com/photoshelf/photoshelf-storage
 
 ADD . .
@@ -13,7 +12,9 @@ RUN dep ensure
 
 RUN go build
 
-VOLUME /go/src/github.com/photoshelf/photoshelf-storage/images
+RUN mkdir -p /photoshelf/images
+VOLUME /photoshelf/images
+
 EXPOSE 1323
 
-CMD ["./photoshelf-storage"]
+CMD ["./photoshelf-storage", "-d", "/photoshelf/images"]

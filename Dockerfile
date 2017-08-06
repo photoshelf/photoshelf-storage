@@ -13,6 +13,7 @@ RUN dep ensure
 
 RUN go build
 
+VOLUME /go/src/github.com/photoshelf/photoshelf-storage/images
 EXPOSE 1323
 
 CMD ["./photoshelf-storage"]

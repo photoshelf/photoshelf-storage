@@ -24,7 +24,11 @@ func main() {
 		return
 	}
 
-	repository := infrastructure.NewFileStorage(configuration.Storage.Directory)
+	port := flag.Int("p", configuration.Server.Port, "port number")
+	imageDir := flag.String("d", configuration.Storage.Directory, "storage directory")
+	flag.Parse()
+
+	repository := infrastructure.NewFileStorage(*imageDir)
 	photoService := service.NewPhotoService(repository)
 	photoController := controller.NewPhotoController(*photoService)
 
@@ -33,9 +37,6 @@ func main() {
 	e.POST("/", photoController.Post)
 	e.PUT("/:id", photoController.Put)
 	e.DELETE("/:id", photoController.Delete)
-
-	port := flag.Int("port", configuration.Server.Port, "port number")
-	flag.Parse()
 
 	address := fmt.Sprintf(":%d", *port)
 	e.Logger.Debug(e.Start(address))

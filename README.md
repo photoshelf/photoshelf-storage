@@ -23,7 +23,7 @@ and run
 ### Using Docker
 ```bash
 docker build -t photoshelf/photoshelf-storage .
-docker run -p 1323:1323 -v $PWD/images:/photoshelf/images photoshelf/photoshelf-storage
+docker run -p 1323:1323 -v $PWD/photos:/photoshelf/photos photoshelf/photoshelf-storage
 ```
 
 ## License

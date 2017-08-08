@@ -1,4 +1,4 @@
 server:
   port: 1323
 storage:
-  directory: ./images
+  directory: ./photos

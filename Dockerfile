@@ -12,9 +12,9 @@ RUN dep ensure
 
 RUN go build
 
-RUN mkdir -p /photoshelf/images
-VOLUME /photoshelf/images
+RUN mkdir -p /photoshelf/photos
+VOLUME /photoshelf/photos
 
 EXPOSE 1323
 
-CMD ["./photoshelf-storage", "-d", "/photoshelf/images"]
+CMD ["./photoshelf-storage", "-d", "/photoshelf/photos"]

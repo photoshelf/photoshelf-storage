@@ -33,10 +33,12 @@ func main() {
 	photoController := controller.NewPhotoController(*photoService)
 
 	e := echo.New()
-	e.GET("/:id", photoController.Get)
-	e.POST("/", photoController.Post)
-	e.PUT("/:id", photoController.Put)
-	e.DELETE("/:id", photoController.Delete)
+
+	g := e.Group("photos")
+	g.GET("/:id", photoController.Get)
+	g.POST("/", photoController.Post)
+	g.PUT("/:id", photoController.Put)
+	g.DELETE("/:id", photoController.Delete)
 
 	address := fmt.Sprintf(":%d", *port)
 	e.Logger.Debug(e.Start(address))

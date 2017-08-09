@@ -28,7 +28,11 @@ func main() {
 	imageDir := flag.String("d", configuration.Storage.Directory, "storage directory")
 	flag.Parse()
 
-	repository := infrastructure.NewFileStorage(*imageDir)
+	repository, err := infrastructure.NewLeveldbStorage(*imageDir)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	photoService := service.NewPhotoService(repository)
 	photoController := controller.NewPhotoController(*photoService)
 

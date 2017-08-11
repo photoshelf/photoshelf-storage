@@ -24,8 +24,10 @@ var conf = infrastructure.Configuration{
 		1234,
 	},
 	Storage: struct {
+		Type string
 		Directory string
 	}{
+		"file",
 		path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata"),
 	},
 }

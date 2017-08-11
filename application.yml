@@ -1,4 +1,5 @@
 server:
   port: 1323
 storage:
+  type: leveldb
   directory: ./photos

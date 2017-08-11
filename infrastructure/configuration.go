@@ -5,6 +5,7 @@ type Configuration struct {
 		Port int
 	}
 	Storage struct {
+		Type string
 		Directory string
 	}
 }

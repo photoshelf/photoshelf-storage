@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"github.com/photoshelf/photoshelf-storage/model"
 )
 
 func main() {
@@ -25,12 +26,22 @@ func main() {
 	}
 
 	port := flag.Int("p", configuration.Server.Port, "port number")
-	imageDir := flag.String("d", configuration.Storage.Directory, "storage directory")
+	storageType := flag.String("t", configuration.Storage.Type, "storage type [file|leveldb]")
+	storageDir := flag.String("d", configuration.Storage.Directory, "storage directory")
 	flag.Parse()
 
-	repository, err := infrastructure.NewLeveldbStorage(*imageDir)
-	if err != nil {
-		log.Fatal(err)
+	var repository model.Repository
+	switch *storageType {
+	case "file":
+		repository = infrastructure.NewFileStorage(*storageDir)
+	case "leveldb":
+		repository, err = infrastructure.NewLeveldbStorage(*storageDir)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	default:
+		log.Fatal(fmt.Sprintf("unknown storage type : %s", *storageType))
 		return
 	}
 	photoService := service.NewPhotoService(repository)

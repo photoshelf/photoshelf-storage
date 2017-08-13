@@ -26,16 +26,22 @@ func main() {
 	}
 
 	port := flag.Int("p", configuration.Server.Port, "port number")
-	storageType := flag.String("t", configuration.Storage.Type, "storage type [file|leveldb]")
-	storageDir := flag.String("d", configuration.Storage.Directory, "storage directory")
+	storageType := flag.String("t", configuration.Storage.Type, "storage type [file|leveldb|boltdb]")
+	storagePath := flag.String("d", configuration.Storage.Path, "storage path")
 	flag.Parse()
 
 	var repository model.Repository
 	switch *storageType {
 	case "file":
-		repository = infrastructure.NewFileStorage(*storageDir)
+		repository = infrastructure.NewFileStorage(*storagePath)
 	case "leveldb":
-		repository, err = infrastructure.NewLeveldbStorage(*storageDir)
+		repository, err = infrastructure.NewLeveldbStorage(*storagePath)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	case "boltdb":
+		repository, err = infrastructure.NewBoltdbStorage(*storagePath)
 		if err != nil {
 			log.Fatal(err)
 			return

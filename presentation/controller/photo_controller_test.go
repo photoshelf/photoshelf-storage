@@ -25,20 +25,20 @@ var conf = infrastructure.Configuration{
 	},
 	Storage: struct {
 		Type string
-		Directory string
+		Path string
 	}{
 		"file",
 		path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata"),
 	},
 }
 
-var repository = infrastructure.NewFileStorage(conf.Storage.Directory)
+var repository = infrastructure.NewFileStorage(conf.Storage.Path)
 var photoService = service.NewPhotoService(repository)
 var photoController = NewPhotoController(*photoService)
 
 func TestGet(t *testing.T) {
 	// Setup
-	body, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	body, _ := os.Open(path.Join(conf.Storage.Path, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(body)
 
 	e := echo.New()
@@ -84,7 +84,7 @@ func TestGetDirectory(t *testing.T) {
 }
 
 func TestPost(t *testing.T) {
-	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	file, _ := os.Open(path.Join(conf.Storage.Path, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(file)
 	file.Close()
 
@@ -106,7 +106,7 @@ func TestPost(t *testing.T) {
 	var res map[string]string
 	json.Unmarshal(rec.Body.Bytes(), &res)
 
-	actualFile, _ := os.Open(path.Join(conf.Storage.Directory, res["Id"]))
+	actualFile, _ := os.Open(path.Join(conf.Storage.Path, res["Id"]))
 	actual, _ := ioutil.ReadAll(actualFile)
 
 	// Assertions
@@ -127,7 +127,7 @@ func TestPostWithoutData(t *testing.T) {
 }
 
 func TestPut(t *testing.T) {
-	file, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	file, _ := os.Open(path.Join(conf.Storage.Path, "e3158990bdee63f8594c260cd51a011d"))
 	data, _ := ioutil.ReadAll(file)
 	file.Close()
 
@@ -149,7 +149,7 @@ func TestPut(t *testing.T) {
 
 	err := photoController.Put(c)
 
-	actualFile, _ := os.Open(path.Join(conf.Storage.Directory, "test"))
+	actualFile, _ := os.Open(path.Join(conf.Storage.Path, "test"))
 	actual, _ := ioutil.ReadAll(actualFile)
 
 	// Assertions
@@ -173,10 +173,10 @@ func TestPutWithoutData(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	src, _ := os.Open(path.Join(conf.Storage.Directory, "e3158990bdee63f8594c260cd51a011d"))
+	src, _ := os.Open(path.Join(conf.Storage.Path, "e3158990bdee63f8594c260cd51a011d"))
 	src.Close()
 
-	dst, _ := os.Create(path.Join(conf.Storage.Directory, "test"))
+	dst, _ := os.Create(path.Join(conf.Storage.Path, "test"))
 	dst.Close()
 
 	io.Copy(dst, src)
@@ -190,7 +190,7 @@ func TestDelete(t *testing.T) {
 	c.SetParamValues("test")
 
 	err := photoController.Delete(c)
-	_, exist := os.Stat(path.Join(conf.Storage.Directory, "test"))
+	_, exist := os.Stat(path.Join(conf.Storage.Path, "test"))
 
 	// Assertions
 	if assert.NoError(t, err) {

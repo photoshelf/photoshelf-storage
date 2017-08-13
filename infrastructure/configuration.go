@@ -6,6 +6,6 @@ type Configuration struct {
 	}
 	Storage struct {
 		Type string
-		Directory string
+		Path string
 	}
 }

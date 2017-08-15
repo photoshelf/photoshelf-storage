@@ -22,6 +22,8 @@ and run
 
 ### Using Docker
 ```bash
+git clone https://github.com/photoshelf/photoshelf-storage.git
+cd photoshelf-storage
 docker build -t photoshelf/photoshelf-storage .
 docker run -p 1323:1323 -v $PWD/photos:/photoshelf/photos photoshelf/photoshelf-storage
 ```

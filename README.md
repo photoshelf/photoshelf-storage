@@ -28,6 +28,39 @@ docker build -t photoshelf/photoshelf-storage .
 docker run -p 1323:1323 -v $PWD/photos:/photoshelf/photos photoshelf/photoshelf-storage
 ```
 
+## CRUD photo
+### Create
+```bash
+curl -X POST http://localhost:1323/photos/ -F "photo=@/path/to/photo"
+```
+
+returns 
+```json
+{
+  "Id": "identifier"
+}
+```
+
+### Read
+```bash
+curl -X GET http://localhost:1323/photos/:id
+```
+  
+or  
+  
+Access with browser to `http://localhost:1323/photos/:id`
+
+
+### Update
+```bash
+curl -X POST http://localhost:1323/photos/:id -F "photo=@/path/to/new_photo"
+```
+
+### Delete
+```bash
+curl -X DELETE http://localhost:1323/photos/:id
+```
+
 ## License
 MIT License
 

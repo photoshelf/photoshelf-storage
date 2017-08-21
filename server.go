@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/photoshelf/photoshelf-storage/infrastructure"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
-	"github.com/photoshelf/photoshelf-storage/service"
+	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 )
 
 func main() {
@@ -33,15 +34,15 @@ func main() {
 	var repository model.Repository
 	switch *storageType {
 	case "file":
-		repository = infrastructure.NewFileStorage(*storagePath)
+		repository = datastore.NewFileStorage(*storagePath)
 	case "leveldb":
-		repository, err = infrastructure.NewLeveldbStorage(*storagePath)
+		repository, err = datastore.NewLeveldbStorage(*storagePath)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 	case "boltdb":
-		repository, err = infrastructure.NewBoltdbStorage(*storagePath)
+		repository, err = datastore.NewBoltdbStorage(*storagePath)
 		if err != nil {
 			log.Fatal(err)
 			return

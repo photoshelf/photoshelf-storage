@@ -4,7 +4,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/infrastructure/utility"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/photoshelf/photoshelf-storage/presentation/view"
-	"github.com/photoshelf/photoshelf-storage/service"
+	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"net/http"

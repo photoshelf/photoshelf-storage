@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/photoshelf/photoshelf-storage/infrastructure"
-	"github.com/photoshelf/photoshelf-storage/service"
+	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"io"
@@ -15,6 +15,7 @@ import (
 	"os"
 	"path"
 	"testing"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 )
 
 var conf = infrastructure.Configuration{
@@ -32,7 +33,7 @@ var conf = infrastructure.Configuration{
 	},
 }
 
-var repository = infrastructure.NewFileStorage(conf.Storage.Path)
+var repository = datastore.NewFileStorage(conf.Storage.Path)
 var photoService = service.NewPhotoService(repository)
 var photoController = NewPhotoController(*photoService)
 

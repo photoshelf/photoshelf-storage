@@ -1,4 +1,4 @@
-package infrastructure
+package datastore
 
 import (
 	"github.com/boltdb/bolt"

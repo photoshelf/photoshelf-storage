@@ -31,7 +31,7 @@ func (configuration *configuration) parse() {
 	flag.Parse()
 }
 
-func Configure() (*configuration, error) {
+func configure() (*configuration, error) {
 	configurationFile, err := ioutil.ReadFile("./application.yml")
 	if err != nil {
 		log.Warn(err)

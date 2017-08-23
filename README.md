@@ -12,7 +12,7 @@ build executable file.
 git clone https://github.com/photoshelf/photoshelf-storage.git
 cd photoshelf-storage
 dep ensure
-go build
+go build -o photoshelf-storage cmd/*.go
 ```
 
 and run

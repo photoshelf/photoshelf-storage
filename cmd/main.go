@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	conf, err := Configure()
+	conf, err := configure()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(-1)

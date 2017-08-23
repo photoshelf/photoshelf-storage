@@ -1,14 +1,14 @@
 package datastore
 
 import (
+	"errors"
+	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/photoshelf/photoshelf-storage/model"
-	"fmt"
-	"errors"
 )
 
 type BoltdbStorage struct {
-	 db *bolt.DB
+	db *bolt.DB
 }
 
 func NewBoltdbStorage(path string) (*BoltdbStorage, error) {
@@ -42,7 +42,7 @@ func (storage *BoltdbStorage) Save(photo model.Photo) (*model.Identifier, error)
 
 func (storage *BoltdbStorage) Read(id model.Identifier) (*model.Photo, error) {
 	var photo *model.Photo
-	if err := storage.db.Update(func (tx *bolt.Tx) error {
+	if err := storage.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("photos"))
 		if err != nil {
 			return err
@@ -62,7 +62,7 @@ func (storage *BoltdbStorage) Read(id model.Identifier) (*model.Photo, error) {
 }
 
 func (storage *BoltdbStorage) Delete(id model.Identifier) error {
-	return storage.db.Update(func (tx *bolt.Tx) error {
+	return storage.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("photos"))
 		if err != nil {
 			return err

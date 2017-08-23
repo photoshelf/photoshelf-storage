@@ -1,8 +1,8 @@
 package datastore
 
 import (
-	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 type LeveldbStorage struct {

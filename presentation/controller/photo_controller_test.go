@@ -3,8 +3,9 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/labstack/echo"
+	"github.com/photoshelf/photoshelf-storage/application/service"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
@@ -14,7 +15,6 @@ import (
 	"os"
 	"path"
 	"testing"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 )
 
 var storagePath = path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")

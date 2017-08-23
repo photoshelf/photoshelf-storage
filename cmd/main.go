@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/photoshelf/photoshelf-storage/router"
 	"fmt"
+	"github.com/photoshelf/photoshelf-storage/router"
 	"log"
 	"os"
 )

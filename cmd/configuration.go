@@ -1,17 +1,17 @@
 package main
 
 import (
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
-	"flag"
-	"github.com/photoshelf/photoshelf-storage/model"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
-	"fmt"
-	"github.com/photoshelf/photoshelf-storage/application/service"
-	"github.com/photoshelf/photoshelf-storage/presentation/controller"
-	"github.com/labstack/gommon/log"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"errors"
+	"flag"
+	"fmt"
+	"github.com/labstack/gommon/log"
+	"github.com/photoshelf/photoshelf-storage/application/service"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
+	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/presentation/controller"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
 type configuration struct {

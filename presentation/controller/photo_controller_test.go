@@ -3,12 +3,14 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/facebookgo/inject"
 	"github.com/labstack/echo"
 	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -18,10 +20,17 @@ import (
 )
 
 var storagePath = path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")
+var photoController = new(PhotoController)
 
-var repository = datastore.NewFileStorage(storagePath)
-var photoService = service.NewPhotoService(repository)
-var photoController = NewPhotoController(*photoService)
+func TestMain(m *testing.M) {
+	repository := datastore.NewFileStorage(storagePath)
+	if err := inject.Populate(photoController, new(service.PhotoService), repository); err != nil {
+		log.Fatal(err)
+		os.Exit(-1)
+	}
+
+	os.Exit(m.Run())
+}
 
 func TestGet(t *testing.T) {
 	// Setup

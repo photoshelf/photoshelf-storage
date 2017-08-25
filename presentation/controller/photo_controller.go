@@ -11,16 +11,12 @@ import (
 )
 
 type PhotoController struct {
-	service service.PhotoService
-}
-
-func NewPhotoController(service service.PhotoService) *PhotoController {
-	return &PhotoController{service}
+	Service *service.PhotoService `inject:""`
 }
 
 func (controller *PhotoController) Get(c echo.Context) error {
 	id := model.IdentifierOf(c.Param("id"))
-	photo, err := controller.service.Find(*id)
+	photo, err := controller.Service.Find(*id)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -44,7 +40,7 @@ func (controller *PhotoController) Post(c echo.Context) error {
 	}
 
 	photo := model.NewPhoto(data)
-	id, err := controller.service.Save(*photo)
+	id, err := controller.Service.Save(*photo)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -67,7 +63,7 @@ func (controller *PhotoController) Put(c echo.Context) error {
 	}
 
 	id := model.IdentifierOf(c.Param("id"))
-	if _, err := controller.service.Save(*model.PhotoOf(*id, data)); err != nil {
+	if _, err := controller.Service.Save(*model.PhotoOf(*id, data)); err != nil {
 		log.Error(err)
 		return err
 	}
@@ -77,7 +73,7 @@ func (controller *PhotoController) Put(c echo.Context) error {
 func (controller *PhotoController) Delete(c echo.Context) error {
 	id := model.IdentifierOf(c.Param("id"))
 
-	if err := controller.service.Delete(*id); err != nil {
+	if err := controller.Service.Delete(*id); err != nil {
 		log.Error(err)
 		return err
 	}

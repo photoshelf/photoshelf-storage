@@ -15,6 +15,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/facebookgo/inject"
+  packages = ["."]
+  revision = "cc1aa653e50f6a9893bcaef89e673e5b24e1e97b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/facebookgo/structtag"
+  packages = ["."]
+  revision = "217e25fb96916cc60332e399c9aa63f5c422ceed"
+
+[[projects]]
+  branch = "master"
   name = "github.com/golang/snappy"
   packages = ["."]
   revision = "553a641470496b2327abcac10b36396bd98e45c9"
@@ -94,6 +106,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "03446c6e7e9ac36fb51d902484b99d1921a1b2e59771da0ca3ecdbd418514c0b"
+  inputs-digest = "4d1239914719a92b7c952e58fa31008dd20c359c8951772e63afed564c663667"
   solver-name = "gps-cdcl"
   solver-version = 1

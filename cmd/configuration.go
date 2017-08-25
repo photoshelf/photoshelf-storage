@@ -4,9 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/facebookgo/inject"
 	"github.com/labstack/gommon/log"
 	"github.com/photoshelf/photoshelf-storage/application/service"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
@@ -14,7 +14,7 @@ import (
 	"io/ioutil"
 )
 
-type configuration struct {
+type Configuration struct {
 	Server struct {
 		Port int
 	}
@@ -24,20 +24,20 @@ type configuration struct {
 	}
 }
 
-func (configuration *configuration) parse() {
+func (configuration *Configuration) parse() {
 	configuration.Server.Port = *flag.Int("p", configuration.Server.Port, "port number")
 	configuration.Storage.Type = *flag.String("t", configuration.Storage.Type, "storage type [file|leveldb|boltdb]")
 	configuration.Storage.Path = *flag.String("d", configuration.Storage.Path, "storage path")
 	flag.Parse()
 }
 
-func configure() (*configuration, error) {
+func configure() (*Configuration, error) {
 	configurationFile, err := ioutil.ReadFile("./application.yml")
 	if err != nil {
 		log.Warn(err)
 	}
 
-	configuration := &configuration{}
+	configuration := &Configuration{}
 	if err := yaml.Unmarshal(configurationFile, configuration); err != nil {
 		return nil, err
 	}
@@ -60,9 +60,11 @@ func configure() (*configuration, error) {
 	default:
 		return nil, errors.New(fmt.Sprintf("unknown storage type : %s", configuration.Storage.Type))
 	}
-	photoService := service.NewPhotoService(repository)
 
-	container.Set(controller.NewPhotoController(*photoService))
+	photoController := new(controller.PhotoController)
+	if err := inject.Populate(photoController, new(service.PhotoService), repository); err != nil {
+		return nil, err
+	}
 
 	return configuration, nil
 }

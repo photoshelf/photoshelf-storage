@@ -13,7 +13,11 @@ func main() {
 		log.Fatal(err)
 		os.Exit(-1)
 	}
-	e := router.Load()
+	e, err := router.Load()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(-1)
+	}
 
 	address := fmt.Sprintf(":%d", conf.Server.Port)
 	e.Logger.Debug(e.Start(address))

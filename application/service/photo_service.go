@@ -5,21 +5,17 @@ import (
 )
 
 type PhotoService struct {
-	repository model.Repository
-}
-
-func NewPhotoService(repository model.Repository) *PhotoService {
-	return &PhotoService{repository}
+	Repository model.Repository `inject:""`
 }
 
 func (service *PhotoService) Save(photo model.Photo) (*model.Identifier, error) {
-	return service.repository.Save(photo)
+	return service.Repository.Save(photo)
 }
 
 func (service *PhotoService) Find(id model.Identifier) (*model.Photo, error) {
-	return service.repository.Read(id)
+	return service.Repository.Read(id)
 }
 
 func (service *PhotoService) Delete(id model.Identifier) error {
-	return service.repository.Delete(id)
+	return service.Repository.Delete(id)
 }

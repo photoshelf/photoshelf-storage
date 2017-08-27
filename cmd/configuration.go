@@ -46,14 +46,14 @@ func configure() (*Configuration, error) {
 	var repository model.Repository
 	switch configuration.Storage.Type {
 	case "file":
-		repository = datastore.NewFileStorage(configuration.Storage.Type)
+		repository = datastore.NewFileStorage(configuration.Storage.Path)
 	case "leveldb":
-		repository, err = datastore.NewLeveldbStorage(configuration.Storage.Type)
+		repository, err = datastore.NewLeveldbStorage(configuration.Storage.Path)
 		if err != nil {
 			return nil, err
 		}
 	case "boltdb":
-		repository, err = datastore.NewBoltdbStorage(configuration.Storage.Type)
+		repository, err = datastore.NewBoltdbStorage(configuration.Storage.Path)
 		if err != nil {
 			return nil, err
 		}

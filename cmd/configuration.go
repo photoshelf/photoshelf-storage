@@ -24,6 +24,21 @@ type Configuration struct {
 	}
 }
 
+func load() (*Configuration, error) {
+	configurationFile, err := ioutil.ReadFile("./application.yml")
+	if err != nil {
+		log.Warn(err)
+	}
+
+	instance := &Configuration{}
+	if err := yaml.Unmarshal(configurationFile, instance); err != nil {
+		return nil, err
+	}
+	instance.parse()
+
+	return instance, nil
+}
+
 func (configuration *Configuration) parse() {
 	configuration.Server.Port = *flag.Int("p", configuration.Server.Port, "port number")
 	configuration.Storage.Type = *flag.String("t", configuration.Storage.Type, "storage type [file|leveldb|boltdb]")
@@ -32,16 +47,10 @@ func (configuration *Configuration) parse() {
 }
 
 func configure() (*Configuration, error) {
-	configurationFile, err := ioutil.ReadFile("./application.yml")
+	configuration, err := load()
 	if err != nil {
-		log.Warn(err)
-	}
-
-	configuration := &Configuration{}
-	if err := yaml.Unmarshal(configurationFile, configuration); err != nil {
 		return nil, err
 	}
-	configuration.parse()
 
 	var repository model.Repository
 	switch configuration.Storage.Type {

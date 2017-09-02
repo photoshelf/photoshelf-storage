@@ -41,21 +41,19 @@ func (configuration *Configuration) Set(path string) error {
 	return nil
 }
 
-func defaultConf() *Configuration {
-	return &Configuration{
-		Server: struct {
-			Port int
-		}{
-			1213,
-		},
-		Storage: struct {
-			Type string
-			Path string
-		}{
-			"leveldb",
-			"./photos",
-		},
-	}
+var defaultConf = &Configuration{
+	Server: struct {
+		Port int
+	}{
+		1213,
+	},
+	Storage: struct {
+		Type string
+		Path string
+	}{
+		"leveldb",
+		"./photos",
+	},
 }
 
 func load() (*Configuration, error) {
@@ -65,19 +63,19 @@ func load() (*Configuration, error) {
 	flag.IntVar(
 		&configuration.Server.Port,
 		"p",
-		defaultConf().Server.Port,
+		defaultConf.Server.Port,
 		"port number",
 	)
 	flag.StringVar(
 		&configuration.Storage.Type,
 		"t",
-		defaultConf().Storage.Type,
+		defaultConf.Storage.Type,
 		"storage type [file|leveldb|boltdb]",
 	)
 	flag.StringVar(
 		&configuration.Storage.Path,
 		"s",
-		defaultConf().Storage.Path,
+		defaultConf.Storage.Path,
 		"storage path",
 	)
 	flag.Parse()

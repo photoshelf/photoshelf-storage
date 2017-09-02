@@ -1,5 +1,0 @@
-server:
-  port: 1323
-storage:
-  type: leveldb
-  path: ./photos

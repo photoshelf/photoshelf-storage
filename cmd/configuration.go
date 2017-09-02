@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/facebookgo/inject"
-	"github.com/labstack/gommon/log"
 	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 	"github.com/photoshelf/photoshelf-storage/model"
@@ -24,26 +23,66 @@ type Configuration struct {
 	}
 }
 
-func load() (*Configuration, error) {
-	configurationFile, err := ioutil.ReadFile("./application.yml")
-	if err != nil {
-		log.Warn(err)
+func (configuration *Configuration) String() string {
+	if (Configuration{}) == *configuration {
+		return ""
 	}
-
-	instance := &Configuration{}
-	if err := yaml.Unmarshal(configurationFile, instance); err != nil {
-		return nil, err
-	}
-	instance.parse()
-
-	return instance, nil
+	return fmt.Sprint(*configuration)
 }
 
-func (configuration *Configuration) parse() {
-	configuration.Server.Port = *flag.Int("p", configuration.Server.Port, "port number")
-	configuration.Storage.Type = *flag.String("t", configuration.Storage.Type, "storage type [file|leveldb|boltdb]")
-	configuration.Storage.Path = *flag.String("d", configuration.Storage.Path, "storage path")
+func (configuration *Configuration) Set(path string) error {
+	configurationFile, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	if err := yaml.Unmarshal(configurationFile, configuration); err != nil {
+		return err
+	}
+	return nil
+}
+
+func defaultConf() *Configuration {
+	return &Configuration{
+		Server: struct {
+			Port int
+		}{
+			1213,
+		},
+		Storage: struct {
+			Type string
+			Path string
+		}{
+			"leveldb",
+			"./photos",
+		},
+	}
+}
+
+func load() (*Configuration, error) {
+	configuration := &Configuration{}
+
+	flag.Var(configuration, "c", "configuration file path")
+	flag.IntVar(
+		&configuration.Server.Port,
+		"p",
+		defaultConf().Server.Port,
+		"port number",
+	)
+	flag.StringVar(
+		&configuration.Storage.Type,
+		"t",
+		defaultConf().Storage.Type,
+		"storage type [file|leveldb|boltdb]",
+	)
+	flag.StringVar(
+		&configuration.Storage.Path,
+		"s",
+		defaultConf().Storage.Path,
+		"storage path",
+	)
 	flag.Parse()
+
+	return configuration, nil
 }
 
 func configure() (*Configuration, error) {

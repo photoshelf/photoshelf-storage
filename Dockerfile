@@ -10,7 +10,7 @@ ADD . .
 RUN go get -u github.com/golang/dep/cmd/dep github.com/mattn/goveralls
 RUN dep ensure
 
-RUN go build -o photoshelf-storage ./cmd/*.go
+RUN go build
 
 RUN mkdir -p /photoshelf/photos
 VOLUME /photoshelf/photos

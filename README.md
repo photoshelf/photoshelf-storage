@@ -20,6 +20,32 @@ and run
 ./photoshelf-storage
 ```
 
+If you have already set $GOPATH, you can install it with the following command.
+```bash
+go get -u github.com/photoshelf/photoshelf-storage
+```
+
+### Running options
+|flag|description            |default |
+|----|-----------------------|--------|
+|c   |configuration file path|        |
+|p   |port number            |1323    |
+|t   |storage type           |leveldb |
+|s   |storage path           |./photos|
+
+#### configuration file
+photoshelf-storage can recognized external file.  
+It needs YAML format
+```yaml
+server:
+  port: 8080
+storage:
+  type: file
+  path: /path/to/storage
+```
+#### storage type
+You can use `file` or embedded kvs (`leveldb` or `boltdb`) to store photos.
+
 ### Using Docker
 ```bash
 git clone https://github.com/photoshelf/photoshelf-storage.git

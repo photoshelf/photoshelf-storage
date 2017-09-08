@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/facebookgo/inject"
 	"github.com/photoshelf/photoshelf-storage/application/service"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
@@ -111,6 +112,7 @@ func configure() (*Configuration, error) {
 	if err := inject.Populate(photoController, new(service.PhotoService), repository); err != nil {
 		return nil, err
 	}
+	container.Set(*photoController)
 
 	return configuration, nil
 }

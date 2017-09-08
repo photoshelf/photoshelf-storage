@@ -1,21 +1,16 @@
 package router
 
 import (
-	"github.com/facebookgo/inject"
 	"github.com/labstack/echo"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
 )
 
 func Load() (*echo.Echo, error) {
 	e := echo.New()
 
-	var graph inject.Graph
 	var photoController controller.PhotoController
-	if err := graph.Provide(
-		&inject.Object{Value: &photoController},
-	); err != nil {
-		return nil, err
-	}
+	container.Get(&photoController)
 
 	g := e.Group("photos")
 	g.GET("/:id", photoController.Get)

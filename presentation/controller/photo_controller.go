@@ -11,7 +11,7 @@ import (
 )
 
 type PhotoController struct {
-	Service *service.PhotoService `inject:""`
+	Service service.PhotoService `inject:""`
 }
 
 func (controller *PhotoController) Get(c echo.Context) error {

@@ -2,15 +2,13 @@ package controller
 
 import (
 	"bytes"
-	"encoding/json"
-	"github.com/facebookgo/inject"
+	"errors"
+	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
-	"github.com/photoshelf/photoshelf-storage/application/service"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
+	"github.com/photoshelf/photoshelf-storage/application/service/mock_service"
+	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/stretchr/testify/assert"
-	"io"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -19,30 +17,39 @@ import (
 	"testing"
 )
 
-var storagePath = path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")
-var photoController = new(PhotoController)
-
 func TestMain(m *testing.M) {
-	repository := datastore.NewFileStorage(storagePath)
-	if err := inject.Populate(photoController, new(service.PhotoService), repository); err != nil {
-		log.Fatal(err)
-		os.Exit(-1)
-	}
+	dataPath := path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")
+	os.Setenv("TEST_DATA_PATH", dataPath)
 
-	os.Exit(m.Run())
+	code := m.Run()
+
+	os.Unsetenv("TEST_DATA_PATH")
+	os.Exit(code)
 }
 
 func TestGet(t *testing.T) {
 	// Setup
-	body, _ := os.Open(path.Join(storagePath, "e3158990bdee63f8594c260cd51a011d"))
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+	body, _ := os.Open(path.Join(os.Getenv("TEST_DATA_PATH"), identifier.Value()))
 	data, _ := ioutil.ReadAll(body)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Find(*identifier).
+		Return(model.PhotoOf(*identifier, data), nil)
+
+	photoController := &PhotoController{mockPhotoService}
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
-	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
+	c.SetParamValues(identifier.Value())
 
 	// Assertions
 	if assert.NoError(t, photoController.Get(c)) {
@@ -51,8 +58,18 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestGetNotFound(t *testing.T) {
+func TestGetWithError(t *testing.T) {
 	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Find(*model.IdentifierOf("not_found")).
+		Return(nil, errors.New("file not found"))
+
+	photoController := &PhotoController{mockPhotoService}
+
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
@@ -65,24 +82,23 @@ func TestGetNotFound(t *testing.T) {
 	assert.Error(t, photoController.Get(c))
 }
 
-func TestGetDirectory(t *testing.T) {
-	// Setup
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/:id")
-	c.SetParamNames("id")
-	c.SetParamValues("dir")
-
-	// Assertions
-	assert.Error(t, photoController.Get(c))
-}
-
 func TestPost(t *testing.T) {
-	file, _ := os.Open(path.Join(storagePath, "e3158990bdee63f8594c260cd51a011d"))
+	// setup
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+	file, _ := os.Open(path.Join(os.Getenv("TEST_DATA_PATH"), identifier.Value()))
 	data, _ := ioutil.ReadAll(file)
 	file.Close()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Save(gomock.Any()).
+		Return(identifier, nil)
+
+	photoController := &PhotoController{mockPhotoService}
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -97,22 +113,26 @@ func TestPost(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	err := photoController.Post(c)
-
-	var res map[string]string
-	json.Unmarshal(rec.Body.Bytes(), &res)
-
-	actualFile, _ := os.Open(path.Join(storagePath, res["Id"]))
-	actual, _ := ioutil.ReadAll(actualFile)
-
 	// Assertions
-	if assert.NoError(t, err) {
+	if assert.NoError(t, photoController.Post(c)) {
 		assert.Equal(t, http.StatusCreated, rec.Code)
-		assert.Equal(t, actual, data)
 	}
 }
 
-func TestPostWithoutData(t *testing.T) {
+func TestPostWithError(t *testing.T) {
+	// setup
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Save(*identifier).
+		Times(0)
+
+	photoController := &PhotoController{mockPhotoService}
+
 	e := echo.New()
 	req := httptest.NewRequest(echo.POST, "/", nil)
 	rec := httptest.NewRecorder()
@@ -123,9 +143,22 @@ func TestPostWithoutData(t *testing.T) {
 }
 
 func TestPut(t *testing.T) {
-	file, _ := os.Open(path.Join(storagePath, "e3158990bdee63f8594c260cd51a011d"))
+	// setup
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+	file, _ := os.Open(path.Join(os.Getenv("TEST_DATA_PATH"), identifier.Value()))
 	data, _ := ioutil.ReadAll(file)
 	file.Close()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Save(*model.PhotoOf(*identifier, data)).
+		Return(identifier, nil)
+
+	photoController := &PhotoController{mockPhotoService}
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -141,41 +174,53 @@ func TestPut(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/:id")
 	c.SetParamNames("id")
-	c.SetParamValues("test")
-
-	err := photoController.Put(c)
-
-	actualFile, _ := os.Open(path.Join(storagePath, "test"))
-	actual, _ := ioutil.ReadAll(actualFile)
+	c.SetParamValues(identifier.Value())
 
 	// Assertions
-	if assert.NoError(t, err) {
+	if assert.NoError(t, photoController.Put(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Equal(t, actual, data)
 	}
 }
 
-func TestPutWithoutData(t *testing.T) {
+func TestPutWithError(t *testing.T) {
+	// setup
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Save(*identifier).
+		Times(0)
+
+	photoController := &PhotoController{mockPhotoService}
+
 	e := echo.New()
 	req := httptest.NewRequest(echo.PUT, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetPath("/:id")
 	c.SetParamNames("id")
-	c.SetParamValues("e3158990bdee63f8594c260cd51a011d")
+	c.SetParamValues(identifier.Value())
 
 	// Assertions
 	assert.Error(t, photoController.Put(c))
 }
 
 func TestDelete(t *testing.T) {
-	src, _ := os.Open(path.Join(storagePath, "e3158990bdee63f8594c260cd51a011d"))
-	src.Close()
+	// setup
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
-	dst, _ := os.Create(path.Join(storagePath, "test"))
-	dst.Close()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	io.Copy(dst, src)
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Delete(*identifier).
+		Return(nil)
+
+	photoController := &PhotoController{mockPhotoService}
 
 	e := echo.New()
 	req := httptest.NewRequest(echo.DELETE, "/", nil)
@@ -183,26 +228,35 @@ func TestDelete(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/:id")
 	c.SetParamNames("id")
-	c.SetParamValues("test")
-
-	err := photoController.Delete(c)
-	_, exist := os.Stat(path.Join(storagePath, "test"))
+	c.SetParamValues(identifier.Value())
 
 	// Assertions
-	if assert.NoError(t, err) {
+	if assert.NoError(t, photoController.Delete(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Error(t, exist)
 	}
 }
 
-func TestDeleteWithoutFile(t *testing.T) {
+func TestDeleteWithError(t *testing.T) {
+	// setup
+	identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+	mockPhotoService.EXPECT().
+		Delete(*identifier).
+		Return(errors.New("error"))
+
+	photoController := &PhotoController{mockPhotoService}
+
 	e := echo.New()
 	req := httptest.NewRequest(echo.DELETE, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetPath("/:id")
 	c.SetParamNames("id")
-	c.SetParamValues("test")
+	c.SetParamValues(identifier.Value())
 
 	assert.Error(t, photoController.Delete(c))
 }

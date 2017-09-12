@@ -19,7 +19,13 @@ func init() {
 }
 
 func Set(val interface{}) {
-	key := reflect.ValueOf(val).Type().String()
+	var key string
+	if reflect.TypeOf(val).Kind() == reflect.Ptr {
+		key = reflect.Indirect(reflect.ValueOf(val)).Type().String()
+	} else {
+		key = reflect.ValueOf(val).Type().String()
+	}
+
 	log.Info(fmt.Sprintf("added %s to components container.", key))
 	instance.values[key] = val
 }
@@ -35,5 +41,9 @@ func Get(ptr interface{}) {
 	log.Info(fmt.Sprintf("found component of %s .", key))
 
 	elm := reflect.ValueOf(ptr).Elem()
-	elm.Set(reflect.ValueOf(component))
+	if reflect.TypeOf(component).Kind() == reflect.Ptr {
+		elm.Set(reflect.Indirect(reflect.ValueOf(component)))
+	} else {
+		elm.Set(reflect.ValueOf(component))
+	}
 }

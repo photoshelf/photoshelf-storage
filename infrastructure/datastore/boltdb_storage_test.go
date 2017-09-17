@@ -8,6 +8,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/boltdb/bolt"
+	"fmt"
 )
 
 var boltdb *BoltdbStorage
@@ -82,3 +83,57 @@ func TestExistData(t *testing.T) {
 	})
 }
 
+func BenchmarkBoltdbStoragePerformanceWithEmptyData(b *testing.B) {
+	err := boltdb.db.Update(func(tx *bolt.Tx) error {
+		tx.DeleteBucket([]byte("photos"))
+		_, err := tx.CreateBucketIfNotExists([]byte("photos"))
+		return err
+	})
+	assert.NoError(b, err, "failure testdata setting.")
+
+	b.Run("write override", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			photo := model.PhotoOf(*model.IdentifierOf("testdata"), testdata)
+			boltdb.Save(*photo)
+		}
+	})
+
+	b.Run("write new", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			photo := model.PhotoOf(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)), testdata)
+			boltdb.Save(*photo)
+		}
+	})
+}
+
+func BenchmarkBoltdbStoragePerformanceWithData(b *testing.B) {
+	err := boltdb.db.Update(func(tx *bolt.Tx) error {
+		tx.DeleteBucket([]byte("photos"))
+		photos, err := tx.CreateBucketIfNotExists([]byte("photos"))
+		if err != nil {
+			return err
+		}
+		for i := 0; i < 100; i++ {
+			key := []byte(fmt.Sprintf("testdata-%d", i))
+			photos.Put(key, testdata)
+		}
+		return nil
+	})
+	assert.NoError(b, err, "failure testdata setting.")
+
+	b.Run("read same data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			boltdb.Read(*model.IdentifierOf("testdata"))
+		}
+	})
+
+	b.Run("read different data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			boltdb.Read(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)))
+		}
+	})
+}

@@ -7,7 +7,9 @@ import (
 	"github.com/facebookgo/inject"
 	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/boltdb_storage"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/file_storage"
+	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/leveldb_storage"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
 	"gopkg.in/yaml.v2"
@@ -93,14 +95,14 @@ func configure() (*Configuration, error) {
 	var repository model.Repository
 	switch configuration.Storage.Type {
 	case "file":
-		repository = datastore.NewFileStorage(configuration.Storage.Path)
+		repository = file_storage.NewFileStorage(configuration.Storage.Path)
 	case "leveldb":
-		repository, err = datastore.NewLeveldbStorage(configuration.Storage.Path)
+		repository, err = leveldb_storage.NewLeveldbStorage(configuration.Storage.Path)
 		if err != nil {
 			return nil, err
 		}
 	case "boltdb":
-		repository, err = datastore.NewBoltdbStorage(configuration.Storage.Path)
+		repository, err = boltdb_storage.NewBoltdbStorage(configuration.Storage.Path)
 		if err != nil {
 			return nil, err
 		}

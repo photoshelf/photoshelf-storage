@@ -1,4 +1,4 @@
-package datastore
+package file_storage
 
 import (
 	"github.com/photoshelf/photoshelf-storage/model"

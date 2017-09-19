@@ -1,14 +1,14 @@
-package datastore
+package boltdb_storage
 
 import (
-	"testing"
-	"os"
-	"path"
-	"io/ioutil"
+	"fmt"
+	"github.com/boltdb/bolt"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/stretchr/testify/assert"
-	"github.com/boltdb/bolt"
-	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"testing"
 )
 
 var boltdb *BoltdbStorage

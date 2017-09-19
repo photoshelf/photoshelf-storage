@@ -1,4 +1,4 @@
-package datastore
+package boltdb_storage
 
 import (
 	"errors"

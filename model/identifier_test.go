@@ -1,8 +1,8 @@
 package model
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestIdentifierIsUnique(t *testing.T) {
@@ -12,8 +12,8 @@ func TestIdentifierIsUnique(t *testing.T) {
 		ids[i] = id
 	}
 	for i, id := range ids {
-		var after  = make([]string, 1000 - (i + 1))
-		var before = make([]string, 1000 - (len(after) + 1))
+		var after = make([]string, 1000-(i+1))
+		var before = make([]string, 1000-(len(after)+1))
 
 		for i, id := range ids[i+1:] {
 			after[i] = id.Value()

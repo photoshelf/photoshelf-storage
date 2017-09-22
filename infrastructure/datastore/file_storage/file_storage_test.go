@@ -1,6 +1,7 @@
 package file_storage
 
 import (
+	"fmt"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -64,6 +65,57 @@ func TestExistData(t *testing.T) {
 		if assert.NoError(t, err) {
 			files, _ := ioutil.ReadDir(filestorage.baseDir)
 			assert.EqualValues(t, 0, len(files))
+		}
+	})
+}
+
+func BenchmarkFileStoragePerformanceWithEmptyData(b *testing.B) {
+	os.RemoveAll(filestorage.baseDir)
+	os.MkdirAll(filestorage.baseDir, 0700)
+	err := ioutil.WriteFile(path.Join(filestorage.baseDir, "testdata"), testdata, 0700)
+	assert.NoError(b, err, "failure testdata setting.")
+
+	b.Run("write override", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			photo := model.PhotoOf(*model.IdentifierOf("testdata"), testdata)
+			filestorage.Save(*photo)
+		}
+	})
+
+	b.Run("write new", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			photo := model.PhotoOf(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)), testdata)
+			filestorage.Save(*photo)
+		}
+	})
+}
+
+func BenchmarkFileStoragePerformanceWithData(b *testing.B) {
+	os.RemoveAll(filestorage.baseDir)
+	os.MkdirAll(filestorage.baseDir, 0700)
+	err := ioutil.WriteFile(path.Join(filestorage.baseDir, "testdata"), testdata, 0700)
+	assert.NoError(b, err, "failure testdata setting.")
+
+	for i := 0; i < 100; i++ {
+		key := fmt.Sprintf("testdata-%d", i)
+		if err := ioutil.WriteFile(path.Join(filestorage.baseDir, key), testdata, 0700); err != nil {
+			assert.NoError(b, err, "failure testdata setting.")
+		}
+	}
+
+	b.Run("read same data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			filestorage.Read(*model.IdentifierOf("testdata"))
+		}
+	})
+
+	b.Run("read different data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			filestorage.Read(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)))
 		}
 	})
 }

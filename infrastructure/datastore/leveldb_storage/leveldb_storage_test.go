@@ -2,6 +2,7 @@ package leveldb_storage
 
 import (
 	"errors"
+	"fmt"
 	"github.com/photoshelf/photoshelf-storage/model"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -62,6 +63,51 @@ func TestExistData(t *testing.T) {
 			actual, err := storage.db.Get([]byte("testdata"), nil)
 			assert.EqualValues(t, []byte{}, actual)
 			assert.EqualValues(t, errors.New("leveldb: not found"), err)
+		}
+	})
+}
+
+func BenchmarkLeveldbStoragePerformanceWithEmptyData(b *testing.B) {
+	err := storage.db.Delete([]byte("testdata"), nil)
+	assert.NoError(b, err, "failure testdata setting.")
+
+	b.Run("write override", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			photo := model.PhotoOf(*model.IdentifierOf("testdata"), testdata)
+			storage.Save(*photo)
+		}
+	})
+
+	b.Run("write new", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			photo := model.PhotoOf(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)), testdata)
+			storage.Save(*photo)
+		}
+	})
+}
+
+func BenchmarkLeveldbStoragePerformanceWithData(b *testing.B) {
+	for i := 0; i < 100; i++ {
+		key := []byte(fmt.Sprintf("testdata-%d", i))
+		err := storage.db.Put(key, testdata, nil)
+		if err != nil {
+			assert.NoError(b, err, "failure testdata setting.")
+		}
+	}
+
+	b.Run("read same data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			storage.Read(*model.IdentifierOf("testdata"))
+		}
+	})
+
+	b.Run("read different data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			storage.Read(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)))
 		}
 	})
 }

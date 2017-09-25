@@ -83,7 +83,7 @@ func TestExistData(t *testing.T) {
 	})
 }
 
-func BenchmarkBoltdbStoragePerformanceWithEmptyData(b *testing.B) {
+func BenchmarkWithEmptyData(b *testing.B) {
 	err := boltdb.db.Update(func(tx *bolt.Tx) error {
 		tx.DeleteBucket([]byte("photos"))
 		_, err := tx.CreateBucketIfNotExists([]byte("photos"))
@@ -108,7 +108,7 @@ func BenchmarkBoltdbStoragePerformanceWithEmptyData(b *testing.B) {
 	})
 }
 
-func BenchmarkBoltdbStoragePerformanceWithData(b *testing.B) {
+func BenchmarkWithData(b *testing.B) {
 	err := boltdb.db.Update(func(tx *bolt.Tx) error {
 		tx.DeleteBucket([]byte("photos"))
 		photos, err := tx.CreateBucketIfNotExists([]byte("photos"))

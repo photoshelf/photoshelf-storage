@@ -67,7 +67,7 @@ func TestExistData(t *testing.T) {
 	})
 }
 
-func BenchmarkLeveldbStoragePerformanceWithEmptyData(b *testing.B) {
+func BenchmarkWithEmptyData(b *testing.B) {
 	err := storage.db.Delete([]byte("testdata"), nil)
 	assert.NoError(b, err, "failure testdata setting.")
 
@@ -88,7 +88,7 @@ func BenchmarkLeveldbStoragePerformanceWithEmptyData(b *testing.B) {
 	})
 }
 
-func BenchmarkLeveldbStoragePerformanceWithData(b *testing.B) {
+func BenchmarkWithData(b *testing.B) {
 	for i := 0; i < 100; i++ {
 		key := []byte(fmt.Sprintf("testdata-%d", i))
 		err := storage.db.Put(key, testdata, nil)

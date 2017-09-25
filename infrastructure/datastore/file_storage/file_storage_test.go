@@ -69,7 +69,7 @@ func TestExistData(t *testing.T) {
 	})
 }
 
-func BenchmarkFileStoragePerformanceWithEmptyData(b *testing.B) {
+func BenchmarkWithEmptyData(b *testing.B) {
 	os.RemoveAll(filestorage.baseDir)
 	os.MkdirAll(filestorage.baseDir, 0700)
 	err := ioutil.WriteFile(path.Join(filestorage.baseDir, "testdata"), testdata, 0700)
@@ -92,7 +92,7 @@ func BenchmarkFileStoragePerformanceWithEmptyData(b *testing.B) {
 	})
 }
 
-func BenchmarkFileStoragePerformanceWithData(b *testing.B) {
+func BenchmarkWithData(b *testing.B) {
 	os.RemoveAll(filestorage.baseDir)
 	os.MkdirAll(filestorage.baseDir, 0700)
 	err := ioutil.WriteFile(path.Join(filestorage.baseDir, "testdata"), testdata, 0700)

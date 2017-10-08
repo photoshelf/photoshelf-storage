@@ -1,11 +1,11 @@
-package main
+package application
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"flag"
-	"path"
+	"github.com/stretchr/testify/assert"
 	"os"
+	"path"
+	"testing"
 )
 
 func TestCanLoadDefault(t *testing.T) {

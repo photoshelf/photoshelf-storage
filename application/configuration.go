@@ -1,4 +1,4 @@
-package main
+package application
 
 import (
 	"errors"
@@ -44,21 +44,6 @@ func (configuration *Configuration) Set(path string) error {
 	return nil
 }
 
-var defaultConf = &Configuration{
-	Server: struct {
-		Port int
-	}{
-		1213,
-	},
-	Storage: struct {
-		Type string
-		Path string
-	}{
-		"leveldb",
-		"./photos",
-	},
-}
-
 func load() (*Configuration, error) {
 	configuration := &Configuration{}
 
@@ -66,19 +51,19 @@ func load() (*Configuration, error) {
 	flag.IntVar(
 		&configuration.Server.Port,
 		"p",
-		defaultConf.Server.Port,
+		1213,
 		"port number",
 	)
 	flag.StringVar(
 		&configuration.Storage.Type,
 		"t",
-		defaultConf.Storage.Type,
+		"leveldb",
 		"storage type [file|leveldb|boltdb]",
 	)
 	flag.StringVar(
 		&configuration.Storage.Path,
 		"s",
-		defaultConf.Storage.Path,
+		"./photos",
 		"storage path",
 	)
 	flag.Parse()
@@ -86,7 +71,7 @@ func load() (*Configuration, error) {
 	return configuration, nil
 }
 
-func configure() (*Configuration, error) {
+func Configure() (*Configuration, error) {
 	configuration, err := load()
 	if err != nil {
 		return nil, err

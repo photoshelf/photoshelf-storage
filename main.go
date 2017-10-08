@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/photoshelf/photoshelf-storage/application"
 	"github.com/photoshelf/photoshelf-storage/router"
 	"log"
 	"os"
 )
 
 func main() {
-	conf, err := configure()
+	conf, err := application.Configure()
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(-1)

@@ -1,0 +1,5 @@
+server:
+  port: 12345
+storage:
+  type: hoge
+  path: fuga

@@ -1,6 +1,6 @@
 package service
 
-import "github.com/photoshelf/photoshelf-storage/model"
+import "github.com/photoshelf/photoshelf-storage/domain/model"
 
 type PhotoServiceImpl struct {
 	Repository model.Repository `inject:""`

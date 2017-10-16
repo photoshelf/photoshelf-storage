@@ -1,7 +1,7 @@
 package file_storage
 
 import (
-	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"io/ioutil"
 	"os"
 	"path"

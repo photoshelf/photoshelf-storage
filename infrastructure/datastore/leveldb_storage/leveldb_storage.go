@@ -1,7 +1,7 @@
 package leveldb_storage
 
 import (
-	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 

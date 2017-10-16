@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model"
 )
 
 type PhotoService interface {

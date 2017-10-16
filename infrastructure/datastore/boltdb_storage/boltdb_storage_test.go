@@ -3,7 +3,7 @@ package boltdb_storage
 import (
 	"fmt"
 	"github.com/boltdb/bolt"
-	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"

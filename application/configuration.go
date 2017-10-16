@@ -10,7 +10,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/boltdb_storage"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/file_storage"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/leveldb_storage"
-	"github.com/photoshelf/photoshelf-storage/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"

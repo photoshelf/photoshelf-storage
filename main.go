@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/photoshelf/photoshelf-storage/application"
-	"github.com/photoshelf/photoshelf-storage/router"
+	"github.com/photoshelf/photoshelf-storage/presentation/router"
 	"log"
 	"os"
 )

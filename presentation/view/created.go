@@ -1,5 +1,5 @@
 package view
 
 type Created struct {
-	Id string
+	Id string `json:"id"`
 }

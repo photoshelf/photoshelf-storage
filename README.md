@@ -63,7 +63,7 @@ curl -X POST http://localhost:1323/photos/ -F "photo=@/path/to/photo"
 returns 
 ```json
 {
-  "Id": "identifier"
+  "id": "identifier"
 }
 ```
 

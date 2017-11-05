@@ -23,6 +23,7 @@ var testdataSet = []testdata{
 	{new(int), 1234},
 	{new(float64), 12.34},
 	{new(testtype), testtype{"hoge", "fuga"}},
+	{new(testtype), &testtype{"hoge", "fuga"}},
 }
 
 func TestMain(m *testing.M) {
@@ -33,15 +34,22 @@ func TestMain(m *testing.M) {
 }
 
 func TestContainer(t *testing.T) {
+	type hoge string
+	testdataSet = append(testdataSet, testdata{new(hoge), nil})
+
 	for _, testdata := range testdataSet {
 		t.Run(fmt.Sprintf("type=%s", reflect.TypeOf(testdata.emp).Name()), func(t *testing.T) {
 			a := testdata.emp
 			Get(a)
 
-			actual := reflect.Indirect(reflect.ValueOf(a)).Interface()
-			expect := reflect.Indirect(reflect.ValueOf(testdata.val)).Interface()
+			if testdata.val != nil {
+				actual := reflect.Indirect(reflect.ValueOf(a)).Interface()
+				expect := reflect.Indirect(reflect.ValueOf(testdata.val)).Interface()
 
-			assert.EqualValues(t, expect, actual)
+				assert.EqualValues(t, expect, actual)
+			} else {
+				assert.EqualValues(t, testdata.emp, a)
+			}
 		})
 	}
 }

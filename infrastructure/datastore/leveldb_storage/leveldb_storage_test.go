@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCreateInstanceWithWrongDirectory(t *testing.T) {
-	instance, err := NewLeveldbStorage("/path/to/wrongPath")
+	instance, err := NewLeveldbStorage("/path/to/wrong path name !@#$%^&*()")
 	if assert.Error(t, err) {
 		assert.Nil(t, instance)
 	}

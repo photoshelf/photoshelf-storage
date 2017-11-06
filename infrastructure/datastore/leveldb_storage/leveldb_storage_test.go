@@ -29,6 +29,43 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+func TestCreateInstanceWithWrongDirectory(t *testing.T) {
+	instance, err := NewLeveldbStorage("/path/to/wrongPath")
+	if assert.Error(t, err) {
+		assert.Nil(t, instance)
+	}
+}
+
+func TestWithoutIdentifier(t *testing.T) {
+	storage.db.Delete([]byte("testdata"), nil)
+
+	photo := model.NewPhoto(testdata)
+
+	t.Run("when save photo, generate new identifier", func(t *testing.T) {
+		identifier, err := storage.Save(*photo)
+
+		if assert.NoError(t, err) {
+			assert.NotNil(t, identifier)
+		}
+	})
+}
+
+func TestWithAnotherTransaction(t *testing.T) {
+	storage.db.Delete([]byte("testdata"), nil)
+	photo := model.NewPhoto(nil)
+
+	storage.db.Close()
+
+	t.Run("when save photo, returns error", func(t *testing.T) {
+		_, err := storage.Save(*photo)
+
+		assert.Error(t, err)
+	})
+
+	dataPath := path.Join(os.TempDir(), "leveldb")
+	storage, _ = NewLeveldbStorage(dataPath)
+}
+
 func TestWithNoKeys(t *testing.T) {
 	storage.db.Delete([]byte("testdata"), nil)
 
@@ -49,6 +86,11 @@ func TestWithNoKeys(t *testing.T) {
 func TestExistData(t *testing.T) {
 	err := storage.db.Put([]byte("testdata"), testdata, nil)
 	assert.NoError(t, err, "failure testdata setting.")
+
+	t.Run("when try to read no key, returns error", func(t *testing.T) {
+		_, err := storage.Read(*model.IdentifierOf("noKey"))
+		assert.Error(t, err)
+	})
 
 	t.Run("same data between src and read", func(t *testing.T) {
 		photo, err := storage.Read(*model.IdentifierOf("testdata"))

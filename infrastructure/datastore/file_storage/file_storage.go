@@ -22,24 +22,15 @@ func (storage *FileStorage) Save(photo model.Photo) (*model.Identifier, error) {
 		id = *model.NewIdentifier(data)
 	}
 
-	dst, err := os.Create(path.Join(storage.baseDir, id.Value()))
-	if err != nil {
-		return nil, err
-	}
-	defer dst.Close()
+	filename := path.Join(storage.baseDir, id.Value())
+	ioutil.WriteFile(filename, data, 0600)
 
-	if _, err := dst.Write(data); err != nil {
-		return nil, err
-	}
 	return &id, nil
 }
 
 func (storage *FileStorage) Read(id model.Identifier) (*model.Photo, error) {
-	file, err := os.Open(path.Join(storage.baseDir, id.Value()))
-	if err != nil {
-		return nil, err
-	}
-	data, err := ioutil.ReadAll(file)
+	filename := path.Join(storage.baseDir, id.Value())
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}

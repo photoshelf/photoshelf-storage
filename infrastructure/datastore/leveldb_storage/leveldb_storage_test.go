@@ -51,8 +51,8 @@ func TestLeveldbStorage_Save(t *testing.T) {
 				},
 			},
 		} {
-			instance = createInstance()
-			photo = model.NewPhoto(readTestData())
+			instance = createInstance(t)
+			photo = model.NewPhoto(readTestData(t))
 
 			t.Run(testcase.name, testcase.function)
 
@@ -84,7 +84,7 @@ func TestLeveldbStorage_Save(t *testing.T) {
 						if err != nil {
 							assert.Fail(t, "fail load data.")
 						}
-						assert.EqualValues(t, readTestData(), actual)
+						assert.EqualValues(t, readTestData(t), actual)
 					})
 				},
 			},
@@ -98,8 +98,8 @@ func TestLeveldbStorage_Save(t *testing.T) {
 				},
 			},
 		} {
-			instance = createInstance()
-			photo = model.PhotoOf(*model.IdentifierOf("testdata"), readTestData())
+			instance = createInstance(t)
+			photo = model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
 
 			t.Run(testcase.name, testcase.function)
 
@@ -126,13 +126,13 @@ func TestLeveldbStorage_Read(t *testing.T) {
 			func(t *testing.T) {
 				photo, err := instance.Read(*model.IdentifierOf("testdata"))
 				if assert.NoError(t, err) {
-					assert.EqualValues(t, readTestData(), photo.Image())
+					assert.EqualValues(t, readTestData(t), photo.Image())
 				}
 			},
 		},
 	} {
-		instance = createInstance()
-		err := instance.db.Put([]byte("testdata"), readTestData(), nil)
+		instance = createInstance(t)
+		err := instance.db.Put([]byte("testdata"), readTestData(t), nil)
 		assert.NoError(t, err)
 
 		t.Run(testcase.name, testcase.function)
@@ -159,8 +159,8 @@ func TestLeveldbStorage_Delete(t *testing.T) {
 			},
 		},
 	} {
-		instance = createInstance()
-		err := instance.db.Put([]byte("testdata"), readTestData(), nil)
+		instance = createInstance(t)
+		err := instance.db.Put([]byte("testdata"), readTestData(t), nil)
 		assert.NoError(t, err)
 
 		t.Run(testcase.name, testcase.function)
@@ -171,7 +171,7 @@ func TestLeveldbStorage_Delete(t *testing.T) {
 
 func BenchmarkWithEmptyData(b *testing.B) {
 	var instance *LeveldbStorage
-	data := readTestData()
+	data := readTestData(b)
 
 	for _, testcase := range []struct {
 		name     string
@@ -195,7 +195,7 @@ func BenchmarkWithEmptyData(b *testing.B) {
 			},
 		},
 	} {
-		instance = createInstance()
+		instance = createInstance(b)
 
 		b.ResetTimer()
 		b.Run(testcase.name, testcase.function)
@@ -206,7 +206,7 @@ func BenchmarkWithEmptyData(b *testing.B) {
 
 func BenchmarkWithData(b *testing.B) {
 	var instance *LeveldbStorage
-	data := readTestData()
+	data := readTestData(b)
 
 	for _, testcase := range []struct {
 		name     string
@@ -228,7 +228,7 @@ func BenchmarkWithData(b *testing.B) {
 			},
 		},
 	} {
-		instance = createInstance()
+		instance = createInstance(b)
 		for i := 0; i < 100; i++ {
 			key := []byte(fmt.Sprintf("testdata-%d", i))
 			err := instance.db.Put(key, data, nil)
@@ -244,28 +244,32 @@ func BenchmarkWithData(b *testing.B) {
 	}
 }
 
-func readTestData() []byte {
+func readTestData(tb testing.TB) []byte {
+	tb.Helper()
+
 	testdataPath := path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")
 	body, err := os.Open(path.Join(testdataPath, "e3158990bdee63f8594c260cd51a011d"))
 	if err != nil {
-		panic(err)
+		tb.Fatal(err)
 	}
 	bytea, err := ioutil.ReadAll(body)
 	if err != nil {
-		panic(err)
+		tb.Fatal(err)
 	}
 	return bytea
 }
 
-func createInstance() *LeveldbStorage {
+func createInstance(tb testing.TB) *LeveldbStorage {
+	tb.Helper()
+
 	dataPath := path.Join(os.TempDir(), "leveldb")
 	if err := os.RemoveAll(dataPath); err != nil {
-		panic(err)
+		tb.Fatal(err)
 	}
 
 	instance, err := NewLeveldbStorage(dataPath)
 	if err != nil {
-		panic(err)
+		tb.Fatal(err)
 	}
 	return instance
 }

@@ -55,6 +55,8 @@ func TestLeveldbStorage_Save(t *testing.T) {
 			photo = model.NewPhoto(readTestData())
 
 			t.Run(testcase.name, testcase.function)
+
+			instance.db.Close()
 		}
 	})
 
@@ -100,6 +102,8 @@ func TestLeveldbStorage_Save(t *testing.T) {
 			photo = model.PhotoOf(*model.IdentifierOf("testdata"), readTestData())
 
 			t.Run(testcase.name, testcase.function)
+
+			instance.db.Close()
 		}
 	})
 }
@@ -132,6 +136,8 @@ func TestLeveldbStorage_Read(t *testing.T) {
 		assert.NoError(t, err)
 
 		t.Run(testcase.name, testcase.function)
+
+		instance.db.Close()
 	}
 }
 
@@ -158,6 +164,8 @@ func TestLeveldbStorage_Delete(t *testing.T) {
 		assert.NoError(t, err)
 
 		t.Run(testcase.name, testcase.function)
+
+		instance.db.Close()
 	}
 }
 
@@ -191,6 +199,8 @@ func BenchmarkWithEmptyData(b *testing.B) {
 
 		b.ResetTimer()
 		b.Run(testcase.name, testcase.function)
+
+		instance.db.Close()
 	}
 }
 
@@ -229,6 +239,8 @@ func BenchmarkWithData(b *testing.B) {
 
 		b.ResetTimer()
 		b.Run(testcase.name, testcase.function)
+
+		instance.db.Close()
 	}
 }
 

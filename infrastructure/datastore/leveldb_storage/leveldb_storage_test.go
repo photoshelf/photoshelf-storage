@@ -32,216 +32,143 @@ func TestNew(t *testing.T) {
 }
 
 func TestLeveldbStorage_Save(t *testing.T) {
-	t.Run("without identifier", func(t *testing.T) {
-		var instance *LeveldbStorage
-		var photo *model.Photo
+	t.Run("save without identifier, generate new identifier", func(t *testing.T) {
+		instance := createInstance(t)
+		photo := model.NewPhoto(readTestData(t))
 
-		for _, testcase := range []struct {
-			name     string
-			function func(t *testing.T)
-		}{
-			{
-				"when save photo, generate new identifier",
-				func(t *testing.T) {
-
-					identifier, err := instance.Save(*photo)
-					if assert.NoError(t, err) {
-						assert.NotNil(t, identifier)
-					}
-				},
-			},
-		} {
-			instance = createInstance(t)
-			photo = model.NewPhoto(readTestData(t))
-
-			t.Run(testcase.name, testcase.function)
-
-			instance.db.Close()
+		identifier, err := instance.Save(*photo)
+		if assert.NoError(t, err) {
+			assert.NotNil(t, identifier)
 		}
+
+		instance.db.Close()
 	})
 
-	t.Run("with identifier", func(t *testing.T) {
-		var instance *LeveldbStorage
-		var photo *model.Photo
+	t.Run("save with identifier", func(t *testing.T) {
+		instance := createInstance(t)
+		photo := *model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
 
-		for _, testcase := range []struct {
-			name     string
-			function func(t *testing.T)
-		}{
-			{
-				"when save photo",
-				func(t *testing.T) {
-					identifier, err := instance.Save(*photo)
-					assert.NoError(t, err)
+		identifier, err := instance.Save(photo)
+		assert.NoError(t, err)
 
-					t.Run("returns identifier has same value", func(t *testing.T) {
-						actual := photo.Id()
-						assert.EqualValues(t, actual.Value(), identifier.Value())
-					})
+		t.Run("returns identifier has same value", func(t *testing.T) {
+			actual := photo.Id()
+			assert.EqualValues(t, actual.Value(), identifier.Value())
+		})
 
-					t.Run("stored same binary", func(t *testing.T) {
-						actual, err := instance.db.Get([]byte("testdata"), nil)
-						if err != nil {
-							assert.Fail(t, "fail load data.")
-						}
-						assert.EqualValues(t, readTestData(t), actual)
-					})
-				},
-			},
-			{
-				"when db closed, returns error",
-				func(t *testing.T) {
-					instance.db.Close()
+		t.Run("stored same binary", func(t *testing.T) {
+			actual, err := instance.db.Get([]byte("testdata"), nil)
+			if err != nil {
+				assert.Fail(t, "fail load data.")
+			}
+			assert.EqualValues(t, readTestData(t), actual)
+		})
 
-					_, err := instance.Save(*photo)
-					assert.Error(t, err)
-				},
-			},
-		} {
-			instance = createInstance(t)
-			photo = model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
-
-			t.Run(testcase.name, testcase.function)
-
-			instance.db.Close()
-		}
+		instance.db.Close()
 	})
 }
 
 func TestLeveldbStorage_Read(t *testing.T) {
-	var instance *LeveldbStorage
-
-	for _, testcase := range []struct {
-		name     string
-		function func(t *testing.T)
-	}{
-		{
-			"when try to read no key, returns err",
-			func(t *testing.T) {
-				_, err := instance.Read(*model.IdentifierOf("noKey"))
-				assert.Error(t, err)
-			},
-		}, {
-			"same value between src and stored value",
-			func(t *testing.T) {
-				photo, err := instance.Read(*model.IdentifierOf("testdata"))
-				if assert.NoError(t, err) {
-					assert.EqualValues(t, readTestData(t), photo.Image())
-				}
-			},
-		},
-	} {
-		instance = createInstance(t)
-		err := instance.db.Put([]byte("testdata"), readTestData(t), nil)
-		assert.NoError(t, err)
-
-		t.Run(testcase.name, testcase.function)
-
-		instance.db.Close()
+	instance := createInstance(t)
+	err := instance.db.Put([]byte("testdata"), readTestData(t), nil)
+	if err != nil {
+		t.Fatal(err)
 	}
+
+	t.Run("with no key, returns err", func(t *testing.T) {
+		_, err := instance.Read(*model.IdentifierOf("noKey"))
+		assert.Error(t, err)
+	})
+
+	t.Run("returns same data with source", func(t *testing.T) {
+		photo, err := instance.Read(*model.IdentifierOf("testdata"))
+		if assert.NoError(t, err) {
+			assert.EqualValues(t, readTestData(t), photo.Image())
+		}
+	})
+
+	instance.db.Close()
 }
 
 func TestLeveldbStorage_Delete(t *testing.T) {
-	var instance *LeveldbStorage
-
-	for _, testcase := range []struct {
-		name     string
-		function func(t *testing.T)
-	}{
-		{
-			"when delete existing key, returns no error",
-			func(t *testing.T) {
-				err := instance.Delete(*model.IdentifierOf("testdata"))
-				if assert.NoError(t, err) {
-					actual, _ := instance.db.Get([]byte("testdata"), nil)
-					assert.EqualValues(t, []byte{}, actual)
-				}
-			},
-		},
-	} {
-		instance = createInstance(t)
-		err := instance.db.Put([]byte("testdata"), readTestData(t), nil)
-		assert.NoError(t, err)
-
-		t.Run(testcase.name, testcase.function)
-
-		instance.db.Close()
+	instance := createInstance(t)
+	err := instance.db.Put([]byte("testdata"), readTestData(t), nil)
+	if err != nil {
+		t.Fatal(err)
 	}
-}
 
-func BenchmarkWithEmptyData(b *testing.B) {
-	var instance *LeveldbStorage
-	data := readTestData(b)
-
-	for _, testcase := range []struct {
-		name     string
-		function func(b *testing.B)
-	}{
-		{
-			"write override",
-			func(b *testing.B) {
-				for i := 0; i < b.N; i++ {
-					photo := model.PhotoOf(*model.IdentifierOf("testdata"), data)
-					instance.Save(*photo)
-				}
-			},
-		}, {
-			"write new",
-			func(b *testing.B) {
-				for i := 0; i < b.N; i++ {
-					photo := model.PhotoOf(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)), data)
-					instance.Save(*photo)
-				}
-			},
-		},
-	} {
-		instance = createInstance(b)
-
-		b.ResetTimer()
-		b.Run(testcase.name, testcase.function)
-
-		instance.db.Close()
-	}
-}
-
-func BenchmarkWithData(b *testing.B) {
-	var instance *LeveldbStorage
-	data := readTestData(b)
-
-	for _, testcase := range []struct {
-		name     string
-		function func(b *testing.B)
-	}{
-		{
-			"read same data",
-			func(b *testing.B) {
-				for i := 0; i < b.N; i++ {
-					instance.Read(*model.IdentifierOf("testdata-0"))
-				}
-			},
-		}, {
-			"read different data",
-			func(b *testing.B) {
-				for i := 0; i < b.N; i++ {
-					instance.Read(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)))
-				}
-			},
-		},
-	} {
-		instance = createInstance(b)
-		for i := 0; i < 100; i++ {
-			key := []byte(fmt.Sprintf("testdata-%d", i))
-			err := instance.db.Put(key, data, nil)
-			if err != nil {
-				assert.NoError(b, err, "failure testdata setting.")
-			}
+	t.Run("when delete existing key, returns no error", func(t *testing.T) {
+		err := instance.Delete(*model.IdentifierOf("testdata"))
+		if assert.NoError(t, err) {
+			actual, _ := instance.db.Get([]byte("testdata"), nil)
+			assert.EqualValues(t, []byte{}, actual)
 		}
+	})
+}
+
+func BenchmarkLeveldbStorage_Save(b *testing.B) {
+	data := readTestData(b)
+
+	b.Run("override", func(b *testing.B) {
+		instance := createInstance(b)
 
 		b.ResetTimer()
-		b.Run(testcase.name, testcase.function)
+		for i := 0; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", 0)
+			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
+			instance.Save(photo)
+		}
+		b.StopTimer()
 
 		instance.db.Close()
+	})
+
+	b.Run("with new key", func(b *testing.B) {
+		instance := createInstance(b)
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", i)
+			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
+			instance.Save(photo)
+		}
+		b.StopTimer()
+
+		instance.db.Close()
+	})
+}
+
+func BenchmarkLeveldbStorage_Read(b *testing.B) {
+	data := readTestData(b)
+	instance := createInstance(b)
+	for i := 0; i < 100; i++ {
+		key := []byte(fmt.Sprintf("testdata-%d", i))
+		if err := instance.db.Put(key, data, nil); err != nil {
+			b.Fatal(err)
+		}
 	}
+
+	b.Run("same data", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", 0)
+			instance.Read(*model.IdentifierOf(key))
+		}
+		b.StopTimer()
+
+		instance.db.Close()
+	})
+
+	b.Run("sequential", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", i)
+			instance.Read(*model.IdentifierOf(key))
+		}
+		b.StopTimer()
+
+		instance.db.Close()
+	})
 }
 
 func readTestData(tb testing.TB) []byte {

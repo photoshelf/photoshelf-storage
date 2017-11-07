@@ -5,8 +5,8 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/domain/model"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/utility"
 	"github.com/photoshelf/photoshelf-storage/presentation/view"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -27,13 +27,7 @@ func (controller *PhotoController) Get(c echo.Context) error {
 }
 
 func (controller *PhotoController) Post(c echo.Context) error {
-	fileHeader, err := c.FormFile("photo")
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	data, err := utility.Read(*fileHeader)
+	data, err := readPhotoBytes(c)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -50,13 +44,7 @@ func (controller *PhotoController) Post(c echo.Context) error {
 }
 
 func (controller *PhotoController) Put(c echo.Context) error {
-	fileHeader, err := c.FormFile("photo")
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	data, err := utility.Read(*fileHeader)
+	data, err := readPhotoBytes(c)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -79,4 +67,23 @@ func (controller *PhotoController) Delete(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func readPhotoBytes(c echo.Context) ([]byte, error) {
+	fileHeader, err := c.FormFile("photo")
+	if err != nil {
+		return nil, err
+	}
+
+	src, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+
+	data, err := ioutil.ReadAll(src)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

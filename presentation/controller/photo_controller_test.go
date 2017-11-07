@@ -306,6 +306,29 @@ func TestPhotoController_Delete(t *testing.T) {
 	})
 }
 
+func TestReadPhotoBytes(t *testing.T) {
+	t.Run("when no photo form, returns error", func(t *testing.T) {
+		body := new(bytes.Buffer)
+		writer := multipart.NewWriter(body)
+		part, err := writer.CreateFormFile("wrong_field", "filename")
+		if err != nil {
+			t.Fatal(err)
+		}
+		part.Write(readTestData(t))
+		writer.Close()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", body)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		_, err = readPhotoBytes(c)
+		assert.Error(t, err)
+	})
+}
+
 func readTestData(tb testing.TB) []byte {
 	tb.Helper()
 

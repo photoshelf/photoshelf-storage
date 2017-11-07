@@ -16,6 +16,12 @@ func NewBoltdbStorage(path string) (*BoltdbStorage, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("photos"))
+		return err
+	}); err != nil {
+		return nil, err
+	}
 
 	return &BoltdbStorage{db}, nil
 }
@@ -28,11 +34,7 @@ func (storage *BoltdbStorage) Save(photo model.Photo) (*model.Identifier, error)
 	}
 
 	if err := storage.db.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("photos"))
-		if err != nil {
-			return err
-		}
-		return b.Put([]byte(id.Value()), data)
+		return tx.Bucket([]byte("photos")).Put([]byte(id.Value()), data)
 	}); err != nil {
 		return nil, err
 	}
@@ -43,12 +45,7 @@ func (storage *BoltdbStorage) Save(photo model.Photo) (*model.Identifier, error)
 func (storage *BoltdbStorage) Read(id model.Identifier) (*model.Photo, error) {
 	var photo *model.Photo
 	if err := storage.db.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("photos"))
-		if err != nil {
-			return err
-		}
-
-		data := b.Get([]byte(id.Value()))
+		data := tx.Bucket([]byte("photos")).Get([]byte(id.Value()))
 		if data == nil {
 			return errors.New(fmt.Sprintf("no such id : %s", id.Value()))
 		}
@@ -63,10 +60,6 @@ func (storage *BoltdbStorage) Read(id model.Identifier) (*model.Photo, error) {
 
 func (storage *BoltdbStorage) Delete(id model.Identifier) error {
 	return storage.db.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("photos"))
-		if err != nil {
-			return err
-		}
-		return b.Delete([]byte(id.Value()))
+		return tx.Bucket([]byte("photos")).Delete([]byte(id.Value()))
 	})
 }

@@ -44,7 +44,7 @@ func (configuration *Configuration) Set(path string) error {
 	return nil
 }
 
-func load() (*Configuration, error) {
+func load() *Configuration {
 	configuration := &Configuration{}
 
 	flag.Var(configuration, "c", "configuration file path")
@@ -68,16 +68,14 @@ func load() (*Configuration, error) {
 	)
 	flag.Parse()
 
-	return configuration, nil
+	return configuration
 }
 
 func Configure() (*Configuration, error) {
-	configuration, err := load()
-	if err != nil {
-		return nil, err
-	}
+	configuration := load()
 
 	var repository model.Repository
+	var err error
 	switch configuration.Storage.Type {
 	case "file":
 		repository = file_storage.NewFileStorage(configuration.Storage.Path)

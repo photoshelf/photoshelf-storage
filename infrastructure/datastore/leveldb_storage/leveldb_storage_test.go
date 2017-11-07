@@ -12,11 +12,12 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("with wrong directory (file)", func(t *testing.T) {
-		file, err := os.Create( "/tmp/readonly")
+		dbPath := path.Join(os.TempDir(), "readonly")
+		file, err := os.Create(dbPath)
 		assert.NoError(t, err)
 		file.Close()
 
-		instance, err := NewLeveldbStorage("/tmp/readonly")
+		instance, err := NewLeveldbStorage(dbPath)
 		if assert.Error(t, err) {
 			assert.Nil(t, instance)
 		}

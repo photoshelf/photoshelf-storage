@@ -102,6 +102,38 @@ func TestPhotoController_Post(t *testing.T) {
 		}
 	})
 
+	t.Run("when service error, returns error", func(t *testing.T) {
+		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+		mockPhotoService.EXPECT().
+			Save(gomock.Any()).
+			Return(nil, errors.New("mock error"))
+
+		photoController := &PhotoController{mockPhotoService}
+
+		body := new(bytes.Buffer)
+		writer := multipart.NewWriter(body)
+		part, err := writer.CreateFormFile("photo", identifier.Value())
+		if err != nil {
+			t.Fatal(err)
+		}
+		part.Write(readTestData(t))
+		writer.Close()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.POST, "/", body)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		assert.Error(t, photoController.Post(c))
+	})
+
 	t.Run("with nil body, returns error", func(t *testing.T) {
 		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -160,6 +192,41 @@ func TestPhotoController_Put(t *testing.T) {
 		if assert.NoError(t, photoController.Put(c)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 		}
+	})
+
+	t.Run("when service error, returns error", func(t *testing.T) {
+		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+		mockPhotoService.EXPECT().
+			Save(*model.PhotoOf(*identifier, readTestData(t))).
+			Return(nil, errors.New("mock error"))
+
+		photoController := &PhotoController{mockPhotoService}
+
+		body := new(bytes.Buffer)
+		writer := multipart.NewWriter(body)
+		part, err := writer.CreateFormFile("photo", identifier.Value())
+		if err != nil {
+			t.Fatal(err)
+		}
+		part.Write(readTestData(t))
+		writer.Close()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", body)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/:id")
+		c.SetParamNames("id")
+		c.SetParamValues(identifier.Value())
+
+		assert.Error(t, photoController.Put(c))
 	})
 
 	t.Run("with nil body, returns error", func(t *testing.T) {

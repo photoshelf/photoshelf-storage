@@ -9,6 +9,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/leveldb_storage"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -45,6 +46,39 @@ func TestLoad(t *testing.T) {
 		assert.EqualValues(t, configuration.Server.Port, 54321)
 		assert.EqualValues(t, configuration.Storage.Type, "foo")
 		assert.EqualValues(t, configuration.Storage.Path, "bar")
+	})
+}
+
+func TestConfiguration_Set(t *testing.T) {
+	t.Run("with no file, returns error", func(t *testing.T) {
+		wrongPath := path.Join(os.TempDir(), "wrong_path")
+		if err := os.RemoveAll(wrongPath); err != nil {
+			t.Fatal(err)
+		}
+
+		conf := &Configuration{}
+		err := conf.Set(wrongPath)
+		assert.Error(t, err)
+	})
+
+	t.Run("with wrong data, returns error", func(t *testing.T) {
+		wrongDataPath := path.Join(os.TempDir(), "wrong_data")
+		if err := ioutil.WriteFile(wrongDataPath, []byte("This is not yml format"), 0700); err != nil {
+			t.Fatal(err)
+		}
+
+		conf := &Configuration{}
+		err := conf.Set(wrongDataPath)
+		assert.Error(t, err)
+	})
+}
+
+func TestConfiguration_String(t *testing.T) {
+	t.Run("when not empty, returns value", func(t *testing.T) {
+		resetFlag()
+
+		conf := load()
+		assert.NotEmpty(t, conf.String())
 	})
 }
 

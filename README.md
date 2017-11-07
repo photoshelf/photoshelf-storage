@@ -1,5 +1,6 @@
 # photoshelf-storage
 [![Build Status](https://travis-ci.org/photoshelf/photoshelf-storage.svg?branch=master)](https://travis-ci.org/photoshlef/photoshelf-storage)
+[![Go Report Card](https://goreportcard.com/badge/github.com/photoshelf/photoshelf-storage)](https://goreportcard.com/report/github.com/photoshelf/photoshelf-storage)
 [![Coverage Status](http://coveralls.io/repos/github/photoshelf/photoshelf-storage/badge.svg?branch=master)](https://coveralls.io/github/photoshelf/photoshelf-storage?branch=master)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)  
 

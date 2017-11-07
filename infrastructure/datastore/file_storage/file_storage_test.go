@@ -10,112 +10,167 @@ import (
 	"testing"
 )
 
-var storage *FileStorage
-var testdata []byte
-
-func TestMain(m *testing.M) {
-	testdataPath := path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")
-	body, _ := os.Open(path.Join(testdataPath, "e3158990bdee63f8594c260cd51a011d"))
-	testdata, _ = ioutil.ReadAll(body)
-
-	dataPath := path.Join(os.TempDir(), "file")
-	os.RemoveAll(dataPath)
-	os.MkdirAll(dataPath, 0700)
-
-	storage = NewFileStorage(dataPath)
-
-	os.Exit(m.Run())
+func TestNew(t *testing.T) {
+	t.Run("with correct directory", func(t *testing.T) {
+		instance := NewFileStorage(path.Join(os.TempDir(), "file_storage"))
+		assert.NotNil(t, instance)
+	})
 }
 
-func TestEmptyDirectory(t *testing.T) {
-	os.RemoveAll(storage.baseDir)
-	os.MkdirAll(storage.baseDir, 0700)
+func TestFileStorage_Save(t *testing.T) {
+	t.Run("save without identifier, generate new identifier", func(t *testing.T) {
+		instance := createInstance(t)
+		photo := model.NewPhoto(readTestData(t))
 
-	t.Run("same data between src and dst", func(t *testing.T) {
-		photo := model.PhotoOf(*model.IdentifierOf("testdata"), testdata)
-		_, err := storage.Save(*photo)
+		identifier, err := instance.Save(*photo)
+		if assert.NoError(t, err) {
+			assert.NotNil(t, identifier)
+		}
+	})
+
+	t.Run("save with identifier", func(t *testing.T) {
+		instance := createInstance(t)
+		photo := model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
+
+		identifier, err := instance.Save(*photo)
 
 		if assert.NoError(t, err) {
-			file, _ := os.Open(path.Join(storage.baseDir, "testdata"))
-			actual, _ := ioutil.ReadAll(file)
+			t.Run("returns identifier has same value", func(t *testing.T) {
+				actual := photo.Id()
+				assert.EqualValues(t, actual.Value(), identifier.Value())
+			})
 
-			assert.EqualValues(t, testdata, actual)
+			t.Run("stored same binary", func(t *testing.T) {
+				file, err := os.Open(path.Join(instance.baseDir, "testdata"))
+				if err != nil {
+					t.Fatal(err)
+				}
+				actual, err := ioutil.ReadAll(file)
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			files, _ := ioutil.ReadDir(storage.baseDir)
-			assert.EqualValues(t, 1, len(files))
+				assert.EqualValues(t, readTestData(t), actual)
+			})
 		}
 	})
 }
 
-func TestExistData(t *testing.T) {
-	os.RemoveAll(storage.baseDir)
-	os.MkdirAll(storage.baseDir, 0700)
-	err := ioutil.WriteFile(path.Join(storage.baseDir, "testdata"), testdata, 0700)
-	assert.NoError(t, err, "failure testdata setting.")
+func TestFileStorage_Read(t *testing.T) {
+	instance := createInstance(t)
+	if err := ioutil.WriteFile(path.Join(instance.baseDir, "testdata"), readTestData(t), 0700); err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("same data between src and read", func(t *testing.T) {
-		file, _ := os.Open(path.Join(storage.baseDir, "testdata"))
-		actual, _ := ioutil.ReadAll(file)
-
-		assert.EqualValues(t, testdata, actual)
+	t.Run("with no key, returns err", func(t *testing.T) {
+		_, err := instance.Read(*model.IdentifierOf("noKey"))
+		assert.Error(t, err)
 	})
 
-	t.Run("deleted data", func(t *testing.T) {
-		err := storage.Delete(*model.IdentifierOf("testdata"))
+	t.Run("returns same data with source", func(t *testing.T) {
+		photo, err := instance.Read(*model.IdentifierOf("testdata"))
 		if assert.NoError(t, err) {
-			files, _ := ioutil.ReadDir(storage.baseDir)
+			assert.EqualValues(t, readTestData(t), photo.Image())
+		}
+	})
+}
+
+func TestFileStorage_Delete(t *testing.T) {
+	instance := createInstance(t)
+	if err := ioutil.WriteFile(path.Join(instance.baseDir, "testdata"), readTestData(t), 0700); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("when delete existing key, returns no error", func(t *testing.T) {
+		err := instance.Delete(*model.IdentifierOf("testdata"))
+		if assert.NoError(t, err) {
+			files, _ := ioutil.ReadDir(instance.baseDir)
 			assert.EqualValues(t, 0, len(files))
 		}
 	})
 }
 
-func BenchmarkWithEmptyData(b *testing.B) {
-	os.RemoveAll(storage.baseDir)
-	os.MkdirAll(storage.baseDir, 0700)
-	err := ioutil.WriteFile(path.Join(storage.baseDir, "testdata"), testdata, 0700)
-	assert.NoError(b, err, "failure testdata setting.")
+func BenchmarkFileStorage_Save(b *testing.B) {
+	data := readTestData(b)
 
-	b.Run("write override", func(b *testing.B) {
+	b.Run("override", func(b *testing.B) {
+		instance := createInstance(b)
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			photo := model.PhotoOf(*model.IdentifierOf("testdata"), testdata)
-			storage.Save(*photo)
+			key := fmt.Sprintf("testdata-%d", 0)
+			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
+			instance.Save(photo)
 		}
+		b.StopTimer()
 	})
 
-	b.Run("write new", func(b *testing.B) {
+	b.Run("with new key", func(b *testing.B) {
+		instance := createInstance(b)
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			photo := model.PhotoOf(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)), testdata)
-			storage.Save(*photo)
+			key := fmt.Sprintf("testdata-%d", i)
+			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
+			instance.Save(photo)
 		}
+		b.StopTimer()
 	})
 }
 
-func BenchmarkWithData(b *testing.B) {
-	os.RemoveAll(storage.baseDir)
-	os.MkdirAll(storage.baseDir, 0700)
-	err := ioutil.WriteFile(path.Join(storage.baseDir, "testdata"), testdata, 0700)
-	assert.NoError(b, err, "failure testdata setting.")
-
+func BenchmarkFileStorage_Read(b *testing.B) {
+	data := readTestData(b)
+	instance := createInstance(b)
 	for i := 0; i < 100; i++ {
 		key := fmt.Sprintf("testdata-%d", i)
-		if err := ioutil.WriteFile(path.Join(storage.baseDir, key), testdata, 0700); err != nil {
-			assert.NoError(b, err, "failure testdata setting.")
+		if err := ioutil.WriteFile(path.Join(instance.baseDir, key), data, 0700); err != nil {
+			b.Fatal(err)
 		}
 	}
 
-	b.Run("read same data", func(b *testing.B) {
+	b.Run("same data", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			storage.Read(*model.IdentifierOf("testdata"))
+			key := fmt.Sprintf("testdata-%d", 0)
+			instance.Read(*model.IdentifierOf(key))
 		}
+		b.StopTimer()
 	})
 
-	b.Run("read different data", func(b *testing.B) {
+	b.Run("sequential", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			storage.Read(*model.IdentifierOf(fmt.Sprintf("testdata-%d", i)))
+			key := fmt.Sprintf("testdata-%d", i)
+			instance.Read(*model.IdentifierOf(key))
 		}
+		b.StopTimer()
 	})
+}
+
+func readTestData(tb testing.TB) []byte {
+	tb.Helper()
+
+	testdataPath := path.Join(os.Getenv("GOPATH"), "src/github.com/photoshelf/photoshelf-storage", "testdata")
+	body, err := os.Open(path.Join(testdataPath, "e3158990bdee63f8594c260cd51a011d"))
+	if err != nil {
+		tb.Fatal(err)
+	}
+	bytea, err := ioutil.ReadAll(body)
+	if err != nil {
+		tb.Fatal(err)
+	}
+	return bytea
+}
+
+func createInstance(tb testing.TB) *FileStorage {
+	tb.Helper()
+
+	dataPath := path.Join(os.TempDir(), "file_storage")
+	if err := os.RemoveAll(dataPath); err != nil {
+		tb.Fatal(err)
+	}
+	if err := os.MkdirAll(dataPath, 0700); err != nil {
+		tb.Fatal(err)
+	}
+	return NewFileStorage(dataPath)
 }

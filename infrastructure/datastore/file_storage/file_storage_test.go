@@ -88,6 +88,11 @@ func TestFileStorage_Delete(t *testing.T) {
 			assert.EqualValues(t, 0, len(files))
 		}
 	})
+
+	t.Run("with no key, returns error", func(t *testing.T) {
+		err := instance.Delete(*model.IdentifierOf("noKey"))
+		assert.Error(t, err)
+	})
 }
 
 func BenchmarkFileStorage_Save(b *testing.B) {

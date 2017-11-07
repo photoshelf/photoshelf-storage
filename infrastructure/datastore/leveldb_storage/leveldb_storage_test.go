@@ -14,7 +14,9 @@ func TestNew(t *testing.T) {
 	t.Run("with wrong directory (file)", func(t *testing.T) {
 		dbPath := path.Join(os.TempDir(), "readonly")
 		file, err := os.Create(dbPath)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 		file.Close()
 
 		instance, err := NewLeveldbStorage(dbPath)
@@ -49,20 +51,21 @@ func TestLeveldbStorage_Save(t *testing.T) {
 		photo := *model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
 
 		identifier, err := instance.Save(photo)
-		assert.NoError(t, err)
 
-		t.Run("returns identifier has same value", func(t *testing.T) {
-			actual := photo.Id()
-			assert.EqualValues(t, actual.Value(), identifier.Value())
-		})
+		if assert.NoError(t, err) {
+			t.Run("returns identifier has same value", func(t *testing.T) {
+				actual := photo.Id()
+				assert.EqualValues(t, actual.Value(), identifier.Value())
+			})
 
-		t.Run("stored same binary", func(t *testing.T) {
-			actual, err := instance.db.Get([]byte("testdata"), nil)
-			if err != nil {
-				assert.Fail(t, "fail load data.")
-			}
-			assert.EqualValues(t, readTestData(t), actual)
-		})
+			t.Run("stored same binary", func(t *testing.T) {
+				actual, err := instance.db.Get([]byte("testdata"), nil)
+				if err != nil {
+					assert.Fail(t, "fail load data.")
+				}
+				assert.EqualValues(t, readTestData(t), actual)
+			})
+		}
 
 		instance.db.Close()
 	})

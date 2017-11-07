@@ -50,22 +50,22 @@ func TestBoltdbStorage_Save(t *testing.T) {
 		photo := *model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
 
 		identifier, err := instance.Save(photo)
-		assert.NoError(t, err)
 
-		t.Run("returns identifier has same value", func(t *testing.T) {
-			actual := photo.Id()
-			assert.EqualValues(t, actual.Value(), identifier.Value())
-		})
-
-		t.Run("stored same binary", func(t *testing.T) {
-			var actual []byte
-			instance.db.View(func(tx *bolt.Tx) error {
-				actual = tx.Bucket([]byte("photos")).Get([]byte("testdata"))
-				return nil
+		if assert.NoError(t, err) {
+			t.Run("returns identifier has same value", func(t *testing.T) {
+				actual := photo.Id()
+				assert.EqualValues(t, actual.Value(), identifier.Value())
 			})
-			assert.EqualValues(t, readTestData(t), actual)
-		})
 
+			t.Run("stored same binary", func(t *testing.T) {
+				var actual []byte
+				instance.db.View(func(tx *bolt.Tx) error {
+					actual = tx.Bucket([]byte("photos")).Get([]byte("testdata"))
+					return nil
+				})
+				assert.EqualValues(t, readTestData(t), actual)
+			})
+		}
 		instance.db.Close()
 	})
 }

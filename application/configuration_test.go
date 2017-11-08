@@ -2,7 +2,6 @@ package application
 
 import (
 	"flag"
-	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/boltdb_storage"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/file_storage"
@@ -12,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"reflect"
 	"testing"
 )
 
@@ -163,5 +163,6 @@ func actualRepository() interface{} {
 	var photoController controller.PhotoController
 	container.Get(&photoController)
 
-	return photoController.Service.(*service.PhotoServiceImpl).Repository
+	service := reflect.Indirect(reflect.ValueOf(photoController.Service))
+	return service.FieldByName("Repository").Interface()
 }

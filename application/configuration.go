@@ -94,7 +94,7 @@ func Configure() (*Configuration, error) {
 	}
 
 	photoController := new(controller.PhotoController)
-	if err := inject.Populate(photoController, new(service.PhotoServiceImpl), repository); err != nil {
+	if err := inject.Populate(photoController, service.New(), repository); err != nil {
 		return nil, err
 	}
 	container.Set(photoController)

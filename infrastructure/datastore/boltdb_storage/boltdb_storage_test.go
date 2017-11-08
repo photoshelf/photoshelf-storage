@@ -6,6 +6,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path"
 	"testing"
@@ -145,13 +146,28 @@ func BenchmarkBoltdbStorage_Save(b *testing.B) {
 
 		instance.db.Close()
 	})
+
+	b.Run("random data", func(b *testing.B) {
+		instance := createInstance(b)
+		randomTestData := model.RandomTestData(b)
+
+		b.ResetTimer()
+		for i := 1; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", i%20)
+			photo := *model.PhotoOf(*model.IdentifierOf(key), randomTestData[i%20])
+			instance.Save(photo)
+		}
+		b.StopTimer()
+
+		instance.db.Close()
+	})
 }
 
 func BenchmarkBoltdbStorage_Read(b *testing.B) {
 	data := readTestData(b)
 	instance := createInstance(b)
 	for i := 0; i < 100; i++ {
-		key := []byte(fmt.Sprintf("testdata-%d", i % 100))
+		key := []byte(fmt.Sprintf("testdata-%d", i%100))
 		err := instance.db.Update(func(tx *bolt.Tx) error {
 			return tx.Bucket([]byte("photos")).Put(key, data)
 		})
@@ -160,7 +176,7 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 		}
 	}
 
-	b.Run("same data", func(b *testing.B) {
+	b.Run("same key", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", 0)
@@ -171,7 +187,7 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 		instance.db.Close()
 	})
 
-	b.Run("sequential", func(b *testing.B) {
+	b.Run("sequential key", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", i)
@@ -180,6 +196,15 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 		b.StopTimer()
 
 		instance.db.Close()
+	})
+
+	b.Run("random key", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", rand.Intn(100))
+			instance.Read(*model.IdentifierOf(key))
+		}
+		b.StopTimer()
 	})
 }
 

@@ -5,6 +5,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path"
 	"testing"
@@ -115,8 +116,21 @@ func BenchmarkFileStorage_Save(b *testing.B) {
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			key := fmt.Sprintf("testdata-%d", i % 100)
+			key := fmt.Sprintf("testdata-%d", i%100)
 			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
+			instance.Save(photo)
+		}
+		b.StopTimer()
+	})
+
+	b.Run("random data", func(b *testing.B) {
+		instance := createInstance(b)
+		randomTestData := model.RandomTestData(b)
+
+		b.ResetTimer()
+		for i := 1; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", i%20)
+			photo := *model.PhotoOf(*model.IdentifierOf(key), randomTestData[i%20])
 			instance.Save(photo)
 		}
 		b.StopTimer()
@@ -133,7 +147,7 @@ func BenchmarkFileStorage_Read(b *testing.B) {
 		}
 	}
 
-	b.Run("same data", func(b *testing.B) {
+	b.Run("same key", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", 0)
@@ -142,10 +156,19 @@ func BenchmarkFileStorage_Read(b *testing.B) {
 		b.StopTimer()
 	})
 
-	b.Run("sequential", func(b *testing.B) {
+	b.Run("sequential key", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", i)
+			instance.Read(*model.IdentifierOf(key))
+		}
+		b.StopTimer()
+	})
+
+	b.Run("random key", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			key := fmt.Sprintf("testdata-%d", rand.Intn(100))
 			instance.Read(*model.IdentifierOf(key))
 		}
 		b.StopTimer()

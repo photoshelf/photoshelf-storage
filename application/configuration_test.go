@@ -85,8 +85,10 @@ func TestConfiguration_String(t *testing.T) {
 func TestConfigure(t *testing.T) {
 	t.Run("with leveldb type, returns instance specify", func(t *testing.T) {
 		resetFlag()
+		dbPath := path.Join(os.TempDir(), "leveldb")
+		os.RemoveAll(dbPath)
 
-		os.Args = append(os.Args, "-t", "leveldb")
+		os.Args = append(os.Args, "-t", "leveldb", "-s", dbPath)
 
 		_, err := Configure()
 		if assert.NoError(t, err) {

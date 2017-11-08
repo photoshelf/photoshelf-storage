@@ -151,7 +151,7 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 	data := readTestData(b)
 	instance := createInstance(b)
 	for i := 0; i < 100; i++ {
-		key := []byte(fmt.Sprintf("testdata-%d", i))
+		key := []byte(fmt.Sprintf("testdata-%d", i % 100))
 		err := instance.db.Update(func(tx *bolt.Tx) error {
 			return tx.Bucket([]byte("photos")).Put(key, data)
 		})

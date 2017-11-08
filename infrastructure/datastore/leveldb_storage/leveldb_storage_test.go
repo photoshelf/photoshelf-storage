@@ -165,7 +165,7 @@ func BenchmarkLeveldbStorage_Read(b *testing.B) {
 	b.Run("sequential", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			key := fmt.Sprintf("testdata-%d", i)
+			key := fmt.Sprintf("testdata-%d", i % 100)
 			instance.Read(*model.IdentifierOf(key))
 		}
 		b.StopTimer()

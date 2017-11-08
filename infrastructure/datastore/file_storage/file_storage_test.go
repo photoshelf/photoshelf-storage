@@ -115,7 +115,7 @@ func BenchmarkFileStorage_Save(b *testing.B) {
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			key := fmt.Sprintf("testdata-%d", i)
+			key := fmt.Sprintf("testdata-%d", i % 100)
 			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
 			instance.Save(photo)
 		}

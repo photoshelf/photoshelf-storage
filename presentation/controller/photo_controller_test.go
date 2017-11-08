@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
-	"github.com/photoshelf/photoshelf-storage/application/service/mock_service"
+	"github.com/photoshelf/photoshelf-storage/application/mock_service"
 	"github.com/photoshelf/photoshelf-storage/domain/model"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"

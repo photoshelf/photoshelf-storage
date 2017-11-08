@@ -19,14 +19,14 @@ func TestNew(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		instance, err := NewBoltdbStorage(dbPath)
+		instance, err := New(dbPath)
 		if assert.Error(t, err) {
 			assert.Nil(t, instance)
 		}
 	})
 
 	t.Run("with correct directory", func(t *testing.T) {
-		instance, err := NewBoltdbStorage(path.Join(os.TempDir(), "boltdb"))
+		instance, err := New(path.Join(os.TempDir(), "boltdb"))
 		if assert.NoError(t, err) {
 			assert.NotNil(t, instance)
 		}
@@ -231,7 +231,7 @@ func createInstance(tb testing.TB) *BoltdbStorage {
 		tb.Fatal(err)
 	}
 
-	instance, err := NewBoltdbStorage(dataPath)
+	instance, err := New(dataPath)
 	if err != nil {
 		tb.Fatal(err)
 	}

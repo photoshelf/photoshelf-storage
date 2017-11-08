@@ -20,14 +20,14 @@ func TestNew(t *testing.T) {
 		}
 		file.Close()
 
-		instance, err := NewLeveldbStorage(dbPath)
+		instance, err := New(dbPath)
 		if assert.Error(t, err) {
 			assert.Nil(t, instance)
 		}
 	})
 
 	t.Run("with correct directory", func(t *testing.T) {
-		instance, err := NewLeveldbStorage(path.Join(os.TempDir(), "leveldb"))
+		instance, err := New(path.Join(os.TempDir(), "leveldb"))
 		if assert.NoError(t, err) {
 			assert.NotNil(t, instance)
 		}
@@ -219,7 +219,7 @@ func createInstance(tb testing.TB) *LeveldbStorage {
 		tb.Fatal(err)
 	}
 
-	instance, err := NewLeveldbStorage(dataPath)
+	instance, err := New(dataPath)
 	if err != nil {
 		tb.Fatal(err)
 	}

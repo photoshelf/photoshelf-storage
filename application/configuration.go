@@ -78,14 +78,14 @@ func Configure() (*Configuration, error) {
 	var err error
 	switch configuration.Storage.Type {
 	case "file":
-		repository = file_storage.NewFileStorage(configuration.Storage.Path)
+		repository = file_storage.New(configuration.Storage.Path)
 	case "leveldb":
-		repository, err = leveldb_storage.NewLeveldbStorage(configuration.Storage.Path)
+		repository, err = leveldb_storage.New(configuration.Storage.Path)
 		if err != nil {
 			return nil, err
 		}
 	case "boltdb":
-		repository, err = boltdb_storage.NewBoltdbStorage(configuration.Storage.Path)
+		repository, err = boltdb_storage.New(configuration.Storage.Path)
 		if err != nil {
 			return nil, err
 		}

@@ -13,7 +13,7 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("with correct directory", func(t *testing.T) {
-		instance := NewFileStorage(path.Join(os.TempDir(), "file_storage"))
+		instance := New(path.Join(os.TempDir(), "file_storage"))
 		assert.NotNil(t, instance)
 	})
 }
@@ -200,5 +200,5 @@ func createInstance(tb testing.TB) *FileStorage {
 	if err := os.MkdirAll(dataPath, 0700); err != nil {
 		tb.Fatal(err)
 	}
-	return NewFileStorage(dataPath)
+	return New(dataPath)
 }

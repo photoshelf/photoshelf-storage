@@ -11,7 +11,7 @@ type BoltdbStorage struct {
 	db *bolt.DB
 }
 
-func NewBoltdbStorage(path string) (*BoltdbStorage, error) {
+func New(path string) (*BoltdbStorage, error) {
 	db, err := bolt.Open(path, 0600, nil)
 	if err != nil {
 		return nil, err

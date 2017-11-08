@@ -11,7 +11,7 @@ type FileStorage struct {
 	baseDir string
 }
 
-func NewFileStorage(baseDir string) *FileStorage {
+func New(baseDir string) *FileStorage {
 	return &FileStorage{baseDir}
 }
 

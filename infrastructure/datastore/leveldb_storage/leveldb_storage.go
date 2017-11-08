@@ -9,7 +9,7 @@ type LeveldbStorage struct {
 	db *leveldb.DB
 }
 
-func NewLeveldbStorage(path string) (*LeveldbStorage, error) {
+func New(path string) (*LeveldbStorage, error) {
 	db, err := leveldb.OpenFile(path, nil)
 	if err != nil {
 		return nil, err

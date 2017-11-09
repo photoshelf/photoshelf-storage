@@ -99,9 +99,7 @@ func TestConfigure(t *testing.T) {
 	t.Run("when fail to load leveldb, returns error", func(t *testing.T) {
 		resetFlag()
 		dbPath := path.Join(os.TempDir(), "readonly")
-		if err := os.Remove(dbPath); err != nil {
-			t.Fatal(err)
-		}
+		os.RemoveAll(dbPath)
 		if err := ioutil.WriteFile(dbPath, nil, 0200); err != nil {
 			t.Fatal(err)
 		}

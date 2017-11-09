@@ -24,7 +24,6 @@ func TestIdentifier_Value(t *testing.T) {
 				}
 			}
 			target := append(before, after...)
-			//t.Log(len(target))
 
 			assert.NotContains(t, id.value, target)
 		}

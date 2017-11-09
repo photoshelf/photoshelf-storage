@@ -5,26 +5,28 @@ import (
 	"testing"
 )
 
-func TestIdentifierIsUnique(t *testing.T) {
-	var ids = make([]*Identifier, 1000)
-	for i := 0; i < 1000; i++ {
-		id := NewIdentifier([]byte("hello world."))
-		ids[i] = id
-	}
-	for i, id := range ids {
-		var after = make([]string, 1000-(i+1))
-		var before = make([]string, 1000-(len(after)+1))
-
-		for i, id := range ids[i+1:] {
-			after[i] = id.Value()
+func TestIdentifier_Value(t *testing.T) {
+	t.Run("it is unique", func(t *testing.T) {
+		var ids []*Identifier
+		for i := 0; i < 1000; i++ {
+			ids = append(ids, NewIdentifier([]byte("hello world.")))
 		}
-		if i > 0 {
-			for i, id := range ids[:i-1] {
-				before[i] = id.Value()
+		for i, id := range ids {
+			var after = make([]string, 1000-(i+1))
+			var before = make([]string, 1000-(len(after)+1))
+
+			for i, id := range ids[i+1:] {
+				after[i] = id.Value()
 			}
-		}
-		target := append(before, after...)
+			if i > 0 {
+				for i, id := range ids[:i-1] {
+					before[i] = id.Value()
+				}
+			}
+			target := append(before, after...)
+			//t.Log(len(target))
 
-		assert.NotContains(t, id.value, target)
-	}
+			assert.NotContains(t, id.value, target)
+		}
+	})
 }

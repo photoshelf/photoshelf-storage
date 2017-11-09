@@ -1,4 +1,4 @@
-package photo
+package phototest
 
 import (
 	"math/rand"

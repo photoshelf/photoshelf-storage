@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"testing"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo/phototest"
 )
 
 func TestNew(t *testing.T) {
@@ -125,7 +126,7 @@ func BenchmarkFileStorage_Save(b *testing.B) {
 
 	b.Run("random data", func(b *testing.B) {
 		instance := createInstance(b)
-		randomTestData := photo.RandomTestData(b)
+		randomTestData := phototest.RandomTestData(b)
 
 		b.ResetTimer()
 		for i := 1; i < b.N; i++ {

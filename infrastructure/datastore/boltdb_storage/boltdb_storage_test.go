@@ -168,12 +168,13 @@ func BenchmarkBoltdbStorage_Save(b *testing.B) {
 }
 
 func BenchmarkBoltdbStorage_Read(b *testing.B) {
-	data := readTestData(b)
+	dataSet := phototest.RandomTestData(b)
 	instance := createInstance(b)
+
 	for i := 0; i < 100; i++ {
 		key := []byte(fmt.Sprintf("testdata-%d", i%100))
 		err := instance.db.Update(func(tx *bolt.Tx) error {
-			return tx.Bucket([]byte("photos")).Put(key, data)
+			return tx.Bucket([]byte("photos")).Put(key, dataSet[i%20])
 		})
 		if err != nil {
 			b.Fatal(err)

@@ -139,11 +139,12 @@ func BenchmarkFileStorage_Save(b *testing.B) {
 }
 
 func BenchmarkFileStorage_Read(b *testing.B) {
-	data := readTestData(b)
+	dataSet := phototest.RandomTestData(b)
 	instance := createInstance(b)
+
 	for i := 0; i < 100; i++ {
 		key := fmt.Sprintf("testdata-%d", i)
-		if err := ioutil.WriteFile(path.Join(instance.baseDir, key), data, 0700); err != nil {
+		if err := ioutil.WriteFile(path.Join(instance.baseDir, key), dataSet[i%20], 0700); err != nil {
 			b.Fatal(err)
 		}
 	}

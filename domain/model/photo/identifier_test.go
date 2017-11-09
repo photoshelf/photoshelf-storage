@@ -1,4 +1,4 @@
-package model
+package photo
 
 import (
 	"github.com/stretchr/testify/assert"

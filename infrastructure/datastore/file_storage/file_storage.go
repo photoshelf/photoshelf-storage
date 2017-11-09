@@ -1,7 +1,7 @@
 package file_storage
 
 import (
-	"github.com/photoshelf/photoshelf-storage/domain/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"io/ioutil"
 	"os"
 	"path"
@@ -15,11 +15,11 @@ func New(baseDir string) *FileStorage {
 	return &FileStorage{baseDir}
 }
 
-func (storage *FileStorage) Save(photo model.Photo) (*model.Identifier, error) {
-	data := photo.Image()
-	id := photo.Id()
-	if photo.IsNew() {
-		id = *model.NewIdentifier(data)
+func (storage *FileStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
+	data := photograph.Image()
+	id := photograph.Id()
+	if photograph.IsNew() {
+		id = *photo.NewIdentifier(data)
 	}
 
 	filename := path.Join(storage.baseDir, id.Value())
@@ -28,17 +28,17 @@ func (storage *FileStorage) Save(photo model.Photo) (*model.Identifier, error) {
 	return &id, nil
 }
 
-func (storage *FileStorage) Read(id model.Identifier) (*model.Photo, error) {
+func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 	filename := path.Join(storage.baseDir, id.Value())
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	return model.PhotoOf(id, data), nil
+	return photo.Of(id, data), nil
 }
 
-func (storage *FileStorage) Delete(id model.Identifier) error {
+func (storage *FileStorage) Delete(id photo.Identifier) error {
 	if err := os.Remove(path.Join(storage.baseDir, id.Value())); err != nil {
 		return err
 	}

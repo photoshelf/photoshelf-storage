@@ -1,4 +1,4 @@
-package model
+package photo
 
 import (
 	"crypto/md5"

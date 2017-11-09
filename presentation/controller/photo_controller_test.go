@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/photoshelf/photoshelf-storage/application/mock_service"
-	"github.com/photoshelf/photoshelf-storage/domain/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"mime/multipart"
@@ -19,7 +19,7 @@ import (
 
 func TestPhotoController_Get(t *testing.T) {
 	t.Run("when service no error, returns bytes", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -27,7 +27,7 @@ func TestPhotoController_Get(t *testing.T) {
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
 			Find(*identifier).
-			Return(model.PhotoOf(*identifier, readTestData(t)), nil)
+			Return(photo.Of(*identifier, readTestData(t)), nil)
 
 		photoController := &PhotoController{mockPhotoService}
 
@@ -50,7 +50,7 @@ func TestPhotoController_Get(t *testing.T) {
 
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
-			Find(*model.IdentifierOf("not_found")).
+			Find(*photo.IdentifierOf("not_found")).
 			Return(nil, errors.New("file not found"))
 
 		photoController := &PhotoController{mockPhotoService}
@@ -69,7 +69,7 @@ func TestPhotoController_Get(t *testing.T) {
 
 func TestPhotoController_Post(t *testing.T) {
 	t.Run("when service no error, returns status created", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -103,7 +103,7 @@ func TestPhotoController_Post(t *testing.T) {
 	})
 
 	t.Run("when service error, returns error", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -135,7 +135,7 @@ func TestPhotoController_Post(t *testing.T) {
 	})
 
 	t.Run("with nil body, returns error", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -158,14 +158,14 @@ func TestPhotoController_Post(t *testing.T) {
 
 func TestPhotoController_Put(t *testing.T) {
 	t.Run("when service no error, returns identifier", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
-			Save(*model.PhotoOf(*identifier, readTestData(t))).
+			Save(*photo.Of(*identifier, readTestData(t))).
 			Return(identifier, nil)
 
 		photoController := &PhotoController{mockPhotoService}
@@ -195,14 +195,14 @@ func TestPhotoController_Put(t *testing.T) {
 	})
 
 	t.Run("when service error, returns error", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
-			Save(*model.PhotoOf(*identifier, readTestData(t))).
+			Save(*photo.Of(*identifier, readTestData(t))).
 			Return(nil, errors.New("mock error"))
 
 		photoController := &PhotoController{mockPhotoService}
@@ -230,7 +230,7 @@ func TestPhotoController_Put(t *testing.T) {
 	})
 
 	t.Run("with nil body, returns error", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -256,7 +256,7 @@ func TestPhotoController_Put(t *testing.T) {
 
 func TestPhotoController_Delete(t *testing.T) {
 	t.Run("when service no error, returns status ok", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -282,7 +282,7 @@ func TestPhotoController_Delete(t *testing.T) {
 	})
 
 	t.Run("when service no error, returns error", func(t *testing.T) {
-		identifier := model.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
+		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()

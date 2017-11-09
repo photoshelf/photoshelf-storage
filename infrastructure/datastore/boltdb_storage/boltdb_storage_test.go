@@ -3,7 +3,7 @@ package boltdb_storage
 import (
 	"fmt"
 	"github.com/boltdb/bolt"
-	"github.com/photoshelf/photoshelf-storage/domain/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"math/rand"
@@ -36,9 +36,9 @@ func TestNew(t *testing.T) {
 func TestBoltdbStorage_Save(t *testing.T) {
 	t.Run("save without identifier, generate new identifier", func(t *testing.T) {
 		instance := createInstance(t)
-		photo := model.NewPhoto(readTestData(t))
+		photograph := photo.New(readTestData(t))
 
-		identifier, err := instance.Save(*photo)
+		identifier, err := instance.Save(*photograph)
 		if assert.NoError(t, err) {
 			assert.NotNil(t, identifier)
 		}
@@ -48,13 +48,13 @@ func TestBoltdbStorage_Save(t *testing.T) {
 
 	t.Run("save with identifier", func(t *testing.T) {
 		instance := createInstance(t)
-		photo := *model.PhotoOf(*model.IdentifierOf("testdata"), readTestData(t))
+		photograph := *photo.Of(*photo.IdentifierOf("testdata"), readTestData(t))
 
-		identifier, err := instance.Save(photo)
+		identifier, err := instance.Save(photograph)
 
 		if assert.NoError(t, err) {
 			t.Run("returns identifier has same value", func(t *testing.T) {
-				actual := photo.Id()
+				actual := photograph.Id()
 				assert.EqualValues(t, actual.Value(), identifier.Value())
 			})
 
@@ -81,14 +81,14 @@ func TestBoltdbStorage_Read(t *testing.T) {
 	}
 
 	t.Run("with no key, returns err", func(t *testing.T) {
-		_, err := instance.Read(*model.IdentifierOf("noKey"))
+		_, err := instance.Read(*photo.IdentifierOf("noKey"))
 		assert.Error(t, err)
 	})
 
 	t.Run("returns same data with source", func(t *testing.T) {
-		photo, err := instance.Read(*model.IdentifierOf("testdata"))
+		photograph, err := instance.Read(*photo.IdentifierOf("testdata"))
 		if assert.NoError(t, err) {
-			assert.EqualValues(t, readTestData(t), photo.Image())
+			assert.EqualValues(t, readTestData(t), photograph.Image())
 		}
 	})
 
@@ -105,7 +105,7 @@ func TestBoltdbStorage_Delete(t *testing.T) {
 	}
 
 	t.Run("when delete existing key, returns no error", func(t *testing.T) {
-		err := instance.Delete(*model.IdentifierOf("testdata"))
+		err := instance.Delete(*photo.IdentifierOf("testdata"))
 		if assert.NoError(t, err) {
 			instance.db.View(func(tx *bolt.Tx) error {
 				numOfKeys := tx.Bucket([]byte("photos")).Stats().KeyN
@@ -125,8 +125,8 @@ func BenchmarkBoltdbStorage_Save(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", 0)
-			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
-			instance.Save(photo)
+			photograph := *photo.Of(*photo.IdentifierOf(key), data)
+			instance.Save(photograph)
 		}
 		b.StopTimer()
 
@@ -139,8 +139,8 @@ func BenchmarkBoltdbStorage_Save(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", i)
-			photo := *model.PhotoOf(*model.IdentifierOf(key), data)
-			instance.Save(photo)
+			photograph := *photo.Of(*photo.IdentifierOf(key), data)
+			instance.Save(photograph)
 		}
 		b.StopTimer()
 
@@ -149,13 +149,13 @@ func BenchmarkBoltdbStorage_Save(b *testing.B) {
 
 	b.Run("random data", func(b *testing.B) {
 		instance := createInstance(b)
-		randomTestData := model.RandomTestData(b)
+		randomTestData := photo.RandomTestData(b)
 
 		b.ResetTimer()
 		for i := 1; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", i%20)
-			photo := *model.PhotoOf(*model.IdentifierOf(key), randomTestData[i%20])
-			instance.Save(photo)
+			photograph := *photo.Of(*photo.IdentifierOf(key), randomTestData[i%20])
+			instance.Save(photograph)
 		}
 		b.StopTimer()
 
@@ -180,7 +180,7 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", 0)
-			instance.Read(*model.IdentifierOf(key))
+			instance.Read(*photo.IdentifierOf(key))
 		}
 		b.StopTimer()
 
@@ -191,7 +191,7 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", i)
-			instance.Read(*model.IdentifierOf(key))
+			instance.Read(*photo.IdentifierOf(key))
 		}
 		b.StopTimer()
 
@@ -202,7 +202,7 @@ func BenchmarkBoltdbStorage_Read(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			key := fmt.Sprintf("testdata-%d", rand.Intn(100))
-			instance.Read(*model.IdentifierOf(key))
+			instance.Read(*photo.IdentifierOf(key))
 		}
 		b.StopTimer()
 	})

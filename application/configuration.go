@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/facebookgo/inject"
 	"github.com/photoshelf/photoshelf-storage/application/service"
-	"github.com/photoshelf/photoshelf-storage/domain/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/boltdb_storage"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/datastore/file_storage"
@@ -74,7 +74,7 @@ func load() *Configuration {
 func Configure() (*Configuration, error) {
 	configuration := load()
 
-	var repository model.Repository
+	var repository photo.Repository
 	var err error
 	switch configuration.Storage.Type {
 	case "file":

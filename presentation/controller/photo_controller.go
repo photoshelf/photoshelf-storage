@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"github.com/photoshelf/photoshelf-storage/application/service"
-	"github.com/photoshelf/photoshelf-storage/domain/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/photoshelf/photoshelf-storage/presentation/view"
 	"io/ioutil"
 	"net/http"
@@ -15,15 +15,15 @@ type PhotoController struct {
 }
 
 func (controller *PhotoController) Get(c echo.Context) error {
-	id := model.IdentifierOf(c.Param("id"))
-	photo, err := controller.Service.Find(*id)
+	id := photo.IdentifierOf(c.Param("id"))
+	photograph, err := controller.Service.Find(*id)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
 
-	mimeType := http.DetectContentType(photo.Image())
-	return c.Blob(http.StatusOK, mimeType, photo.Image())
+	mimeType := http.DetectContentType(photograph.Image())
+	return c.Blob(http.StatusOK, mimeType, photograph.Image())
 }
 
 func (controller *PhotoController) Post(c echo.Context) error {
@@ -33,8 +33,8 @@ func (controller *PhotoController) Post(c echo.Context) error {
 		return err
 	}
 
-	photo := model.NewPhoto(data)
-	id, err := controller.Service.Save(*photo)
+	photograph := photo.New(data)
+	id, err := controller.Service.Save(*photograph)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -50,8 +50,8 @@ func (controller *PhotoController) Put(c echo.Context) error {
 		return err
 	}
 
-	id := model.IdentifierOf(c.Param("id"))
-	if _, err := controller.Service.Save(*model.PhotoOf(*id, data)); err != nil {
+	id := photo.IdentifierOf(c.Param("id"))
+	if _, err := controller.Service.Save(*photo.Of(*id, data)); err != nil {
 		log.Error(err)
 		return err
 	}
@@ -59,7 +59,7 @@ func (controller *PhotoController) Put(c echo.Context) error {
 }
 
 func (controller *PhotoController) Delete(c echo.Context) error {
-	id := model.IdentifierOf(c.Param("id"))
+	id := photo.IdentifierOf(c.Param("id"))
 
 	if err := controller.Service.Delete(*id); err != nil {
 		log.Error(err)

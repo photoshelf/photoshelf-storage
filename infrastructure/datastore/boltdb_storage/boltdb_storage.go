@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/boltdb/bolt"
-	"github.com/photoshelf/photoshelf-storage/domain/model"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 )
 
 type BoltdbStorage struct {
@@ -26,11 +26,11 @@ func New(path string) (*BoltdbStorage, error) {
 	return &BoltdbStorage{db}, nil
 }
 
-func (storage *BoltdbStorage) Save(photo model.Photo) (*model.Identifier, error) {
-	data := photo.Image()
-	id := photo.Id()
-	if photo.IsNew() {
-		id = *model.NewIdentifier(data)
+func (storage *BoltdbStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
+	data := photograph.Image()
+	id := photograph.Id()
+	if photograph.IsNew() {
+		id = *photo.NewIdentifier(data)
 	}
 
 	if err := storage.db.Update(func(tx *bolt.Tx) error {
@@ -42,23 +42,23 @@ func (storage *BoltdbStorage) Save(photo model.Photo) (*model.Identifier, error)
 	return &id, nil
 }
 
-func (storage *BoltdbStorage) Read(id model.Identifier) (*model.Photo, error) {
-	var photo *model.Photo
+func (storage *BoltdbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
+	var photograph *photo.Photo
 	if err := storage.db.Update(func(tx *bolt.Tx) error {
 		data := tx.Bucket([]byte("photos")).Get([]byte(id.Value()))
 		if data == nil {
 			return errors.New(fmt.Sprintf("no such id : %s", id.Value()))
 		}
-		photo = model.PhotoOf(id, data)
+		photograph = photo.Of(id, data)
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	return photo, nil
+	return photograph, nil
 }
 
-func (storage *BoltdbStorage) Delete(id model.Identifier) error {
+func (storage *BoltdbStorage) Delete(id photo.Identifier) error {
 	return storage.db.Update(func(tx *bolt.Tx) error {
 		return tx.Bucket([]byte("photos")).Delete([]byte(id.Value()))
 	})

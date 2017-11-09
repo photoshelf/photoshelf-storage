@@ -1,15 +1,15 @@
-package model
+package photo
 
 type Photo struct {
 	id    Identifier
 	image []byte
 }
 
-func NewPhoto(data []byte) *Photo {
+func New(data []byte) *Photo {
 	return &Photo{Identifier{}, data}
 }
 
-func PhotoOf(id Identifier, data []byte) *Photo {
+func Of(id Identifier, data []byte) *Photo {
 	return &Photo{id, data}
 }
 

@@ -6,7 +6,7 @@ package mock_service
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	model "github.com/photoshelf/photoshelf-storage/domain/model"
+	photo "github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	reflect "reflect"
 )
 
@@ -34,9 +34,9 @@ func (m *MockPhotoService) EXPECT() *MockPhotoServiceMockRecorder {
 }
 
 // Save mocks base method
-func (m *MockPhotoService) Save(photo model.Photo) (*model.Identifier, error) {
-	ret := m.ctrl.Call(m, "Save", photo)
-	ret0, _ := ret[0].(*model.Identifier)
+func (m *MockPhotoService) Save(photograph photo.Photo) (*photo.Identifier, error) {
+	ret := m.ctrl.Call(m, "Save", photograph)
+	ret0, _ := ret[0].(*photo.Identifier)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -47,9 +47,9 @@ func (mr *MockPhotoServiceMockRecorder) Save(photo interface{}) *gomock.Call {
 }
 
 // Find mocks base method
-func (m *MockPhotoService) Find(id model.Identifier) (*model.Photo, error) {
+func (m *MockPhotoService) Find(id photo.Identifier) (*photo.Photo, error) {
 	ret := m.ctrl.Call(m, "Find", id)
-	ret0, _ := ret[0].(*model.Photo)
+	ret0, _ := ret[0].(*photo.Photo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -60,7 +60,7 @@ func (mr *MockPhotoServiceMockRecorder) Find(id interface{}) *gomock.Call {
 }
 
 // Delete mocks base method
-func (m *MockPhotoService) Delete(id model.Identifier) error {
+func (m *MockPhotoService) Delete(id photo.Identifier) error {
 	ret := m.ctrl.Call(m, "Delete", id)
 	ret0, _ := ret[0].(error)
 	return ret0

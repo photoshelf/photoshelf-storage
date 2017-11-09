@@ -1,4 +1,4 @@
-package model
+package photo
 
 type Repository interface {
 	Save(photo Photo) (*Identifier, error)

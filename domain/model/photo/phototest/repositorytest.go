@@ -21,9 +21,7 @@ func RandomTestData(tb testing.TB) [][]byte {
 		for i := 0; i < 20; i++ {
 			size := rand.Intn(max)
 			bytea := make([]byte, size)
-			if _, err := rand.Read(bytea); err != nil {
-				tb.Fatal(err)
-			}
+			rand.Read(bytea)
 			instance.randomData = append(instance.randomData, bytea)
 		}
 	}

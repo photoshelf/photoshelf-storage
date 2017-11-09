@@ -26,7 +26,7 @@ func Set(val interface{}) {
 		key = reflect.ValueOf(val).Type().String()
 	}
 
-	log.Info(fmt.Sprintf("added %s to components container.", key))
+	log.Debug(fmt.Sprintf("added %s to components container.", key))
 	instance.values[key] = val
 }
 
@@ -38,7 +38,7 @@ func Get(ptr interface{}) {
 		log.Warn(fmt.Sprintf("component not found. such type of %s.", key))
 		return
 	}
-	log.Info(fmt.Sprintf("found component of %s .", key))
+	log.Debug(fmt.Sprintf("found component of %s .", key))
 
 	elm := reflect.ValueOf(ptr).Elem()
 	if reflect.TypeOf(component).Kind() == reflect.Ptr {

@@ -15,9 +15,7 @@ import (
 func TestNew(t *testing.T) {
 	t.Run("with wrong directory (file)", func(t *testing.T) {
 		dbPath := path.Join(os.TempDir(), "readonly")
-		if err := os.Remove(dbPath); err != nil {
-			t.Fatal(err)
-		}
+		os.RemoveAll(dbPath)
 		if err := ioutil.WriteFile(dbPath, []byte("not empty"), 0200); err != nil {
 			t.Fatal(err)
 		}

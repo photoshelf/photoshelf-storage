@@ -98,15 +98,17 @@ func TestConfigure(t *testing.T) {
 
 	t.Run("when fail to load leveldb, returns error", func(t *testing.T) {
 		resetFlag()
-		file, err := os.Create(path.Join(os.TempDir(), "readonly"))
-		if err != nil {
+		dbPath := path.Join(os.TempDir(), "readonly")
+		if err := os.Remove(dbPath); err != nil {
 			t.Fatal(err)
 		}
-		file.Close()
+		if err := ioutil.WriteFile(dbPath, nil, 0200); err != nil {
+			t.Fatal(err)
+		}
 
 		os.Args = append(os.Args, "-t", "leveldb", "-s", path.Join(os.TempDir(), "readonly"))
 
-		_, err = Configure()
+		_, err := Configure()
 		assert.Error(t, err)
 	})
 

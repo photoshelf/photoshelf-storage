@@ -9,7 +9,7 @@ import (
 func Load() (*echo.Echo, error) {
 	e := echo.New()
 
-	var photoController controller.PhotoController
+	photoController := controller.New()
 	container.Get(&photoController)
 
 	g := e.Group("photos")

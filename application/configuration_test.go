@@ -162,9 +162,12 @@ func resetFlag() {
 }
 
 func actualRepository() interface{} {
-	var photoController controller.PhotoController
-	container.Get(&photoController)
+	photoController := controller.New()
+	container.Get(photoController)
 
-	service := reflect.Indirect(reflect.ValueOf(photoController.Service))
-	return service.FieldByName("Repository").Interface()
+	pcv := reflect.Indirect(reflect.ValueOf(photoController))
+	ps := pcv.Field(0).Interface()
+	psv := reflect.ValueOf(ps)
+	rv := reflect.Indirect(psv).Field(0)
+	return rv.Interface()
 }

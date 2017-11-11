@@ -26,7 +26,7 @@ func Set(val interface{}) {
 		key = reflect.ValueOf(val).Type().String()
 	}
 
-	log.Debug(fmt.Sprintf("added %s to components container.", key))
+	log.Info(fmt.Sprintf("added %s to components container.", key))
 	instance.values[key] = val
 }
 
@@ -35,7 +35,19 @@ func Get(ptr interface{}) {
 	key := reflect.Indirect(val).Type().String()
 	component := instance.values[key]
 	if component == nil {
-		log.Warn(fmt.Sprintf("component not found. such type of %s.", key))
+		if reflect.Indirect(val).Type().Kind() != reflect.Interface {
+			log.Warn(fmt.Sprintf("component not found. such type of %s.", key))
+			return
+		}
+		for _, component := range instance.values {
+			value := reflect.ValueOf(component)
+			elm := reflect.ValueOf(ptr).Elem()
+			if value.Type().Implements(elm.Type()) {
+				log.Info(fmt.Sprintf("found component of %s .", key))
+				elm.Set(value)
+				return
+			}
+		}
 		return
 	}
 	log.Debug(fmt.Sprintf("found component of %s .", key))

@@ -10,11 +10,22 @@ import (
 	"net/http"
 )
 
-type PhotoController struct {
+type PhotoController interface {
+	Get(c echo.Context) error
+	Post(c echo.Context) error
+	Put(c echo.Context) error
+	Delete(c echo.Context) error
+}
+
+type photoControllerImpl struct {
 	Service service.PhotoService `inject:""`
 }
 
-func (controller *PhotoController) Get(c echo.Context) error {
+func New() PhotoController {
+	return &photoControllerImpl{}
+}
+
+func (controller *photoControllerImpl) Get(c echo.Context) error {
 	id := photo.IdentifierOf(c.Param("id"))
 	photograph, err := controller.Service.Find(*id)
 	if err != nil {
@@ -26,7 +37,7 @@ func (controller *PhotoController) Get(c echo.Context) error {
 	return c.Blob(http.StatusOK, mimeType, photograph.Image())
 }
 
-func (controller *PhotoController) Post(c echo.Context) error {
+func (controller *photoControllerImpl) Post(c echo.Context) error {
 	data, err := readPhotoBytes(c)
 	if err != nil {
 		log.Error(err)
@@ -43,7 +54,7 @@ func (controller *PhotoController) Post(c echo.Context) error {
 	return c.JSON(http.StatusCreated, view.Created{Id: id.Value()})
 }
 
-func (controller *PhotoController) Put(c echo.Context) error {
+func (controller *photoControllerImpl) Put(c echo.Context) error {
 	data, err := readPhotoBytes(c)
 	if err != nil {
 		log.Error(err)
@@ -58,7 +69,7 @@ func (controller *PhotoController) Put(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func (controller *PhotoController) Delete(c echo.Context) error {
+func (controller *photoControllerImpl) Delete(c echo.Context) error {
 	id := photo.IdentifierOf(c.Param("id"))
 
 	if err := controller.Service.Delete(*id); err != nil {

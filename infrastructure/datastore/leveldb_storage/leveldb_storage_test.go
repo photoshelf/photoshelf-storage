@@ -3,13 +3,13 @@ package leveldb_storage
 import (
 	"fmt"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
+	"github.com/photoshelf/photoshelf-storage/domain/model/photo/phototest"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"path"
 	"testing"
-	"github.com/photoshelf/photoshelf-storage/domain/model/photo/phototest"
 )
 
 func TestNew(t *testing.T) {

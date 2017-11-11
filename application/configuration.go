@@ -93,7 +93,7 @@ func Configure() (*Configuration, error) {
 		return nil, errors.New(fmt.Sprintf("unknown storage type : %s", configuration.Storage.Type))
 	}
 
-	photoController := new(controller.PhotoController)
+	photoController := controller.New()
 	if err := inject.Populate(photoController, service.New(), repository); err != nil {
 		return nil, err
 	}

@@ -20,8 +20,8 @@ func TestLoad(t *testing.T) {
 		resetFlag()
 
 		configuration := load()
-		assert.EqualValues(t, 1213, configuration.Server.Port)
-		assert.EqualValues(t, "leveldb", configuration.Storage.Type)
+		assert.EqualValues(t, 1323, configuration.Server.Port)
+		assert.EqualValues(t, "boltdb", configuration.Storage.Type)
 		assert.EqualValues(t, "./photos", configuration.Storage.Path)
 	})
 

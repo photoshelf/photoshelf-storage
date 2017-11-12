@@ -51,7 +51,7 @@ func load() *Configuration {
 	flag.IntVar(
 		&configuration.Server.Port,
 		"p",
-		1213,
+		1323,
 		"port number",
 	)
 	flag.StringVar(

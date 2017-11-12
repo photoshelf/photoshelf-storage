@@ -1,6 +1,7 @@
 package file_storage
 
 import (
+	"github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"io/ioutil"
 	"os"
@@ -32,7 +33,7 @@ func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 	filename := path.Join(storage.baseDir, id.Value())
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, errors.NotFound(id.Value())
 	}
 
 	return photo.Of(id, data), nil

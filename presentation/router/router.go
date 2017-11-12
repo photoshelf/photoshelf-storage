@@ -20,6 +20,7 @@ func Load() (*echo.Echo, error) {
 	g.DELETE("/:id", photoController.Delete)
 
 	e.Use(middleware.Logger())
+	e.Use(middleware.BodyLimit("20M"))
 
 	return e, nil
 }

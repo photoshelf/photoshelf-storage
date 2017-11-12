@@ -57,7 +57,7 @@ func load() *Configuration {
 	flag.StringVar(
 		&configuration.Storage.Type,
 		"t",
-		"leveldb",
+		"boltdb",
 		"storage type [file|leveldb|boltdb]",
 	)
 	flag.StringVar(

@@ -31,7 +31,7 @@ go get -u github.com/photoshelf/photoshelf-storage
 |----|-----------------------|--------|
 |c   |configuration file path|        |
 |p   |port number            |1323    |
-|t   |storage type           |leveldb |
+|t   |storage type           |boltdb  |
 |s   |storage path           |./photos|
 
 #### configuration file

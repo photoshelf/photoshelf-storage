@@ -32,10 +32,6 @@ type testImpl struct {
 
 func (*testImpl) Hoge() {}
 
-var interfaceVar *testInterface = new(testInterface)
-
-var noneInterface *testInterfaceTwo = new(testInterfaceTwo)
-
 var testdataSet []testdata
 
 func TestMain(m *testing.M) {

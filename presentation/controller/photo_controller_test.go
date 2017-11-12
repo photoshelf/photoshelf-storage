@@ -252,6 +252,27 @@ func TestPhotoController_Put(t *testing.T) {
 
 		assert.Error(t, photoController.Put(c))
 	})
+
+	t.Run("when no photo form, returns error", func(t *testing.T) {
+		body := new(bytes.Buffer)
+		writer := multipart.NewWriter(body)
+		part, err := writer.CreateFormFile("wrong_field", "filename")
+		if err != nil {
+			t.Fatal(err)
+		}
+		part.Write(readTestData(t))
+		writer.Close()
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.PUT, "/", body)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		_, err = readPhotoBytes(c)
+		assert.Error(t, err)
+	})
 }
 
 func TestPhotoController_Delete(t *testing.T) {
@@ -303,29 +324,6 @@ func TestPhotoController_Delete(t *testing.T) {
 		c.SetParamValues(identifier.Value())
 
 		assert.Error(t, photoController.Delete(c))
-	})
-}
-
-func TestReadPhotoBytes(t *testing.T) {
-	t.Run("when no photo form, returns error", func(t *testing.T) {
-		body := new(bytes.Buffer)
-		writer := multipart.NewWriter(body)
-		part, err := writer.CreateFormFile("wrong_field", "filename")
-		if err != nil {
-			t.Fatal(err)
-		}
-		part.Write(readTestData(t))
-		writer.Close()
-
-		e := echo.New()
-		req := httptest.NewRequest(echo.PUT, "/", body)
-		req.Header.Add("Content-Type", writer.FormDataContentType())
-
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-
-		_, err = readPhotoBytes(c)
-		assert.Error(t, err)
 	})
 }
 

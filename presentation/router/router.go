@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
 )
@@ -17,6 +18,8 @@ func Load() (*echo.Echo, error) {
 	g.POST("/", photoController.Post)
 	g.PUT("/:id", photoController.Put)
 	g.DELETE("/:id", photoController.Delete)
+
+	e.Use(middleware.Logger())
 
 	return e, nil
 }

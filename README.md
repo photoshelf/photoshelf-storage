@@ -80,7 +80,7 @@ Access with browser to `http://localhost:1323/photos/:id`
 
 ### Update
 ```bash
-curl -X POST http://localhost:1323/photos/:id -F "photo=@/path/to/new_photo"
+curl -X PUT http://localhost:1323/photos/:id -F "photo=@/path/to/new_photo"
 ```
 
 ### Delete

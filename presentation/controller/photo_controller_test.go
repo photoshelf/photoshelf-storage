@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
+	appErrors "github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/application/mock_service"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/stretchr/testify/assert"
@@ -64,6 +65,28 @@ func TestPhotoController_Get(t *testing.T) {
 		c.SetParamValues("not_found")
 
 		assert.Error(t, photoController.Get(c))
+	})
+
+	t.Run("when service NotFoundError, returns error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
+		mockPhotoService.EXPECT().
+			Find(*photo.IdentifierOf("not_found")).
+			Return(nil, appErrors.NotFound("not_found"))
+
+		photoController := &photoControllerImpl{mockPhotoService}
+
+		e := echo.New()
+		req := httptest.NewRequest(echo.GET, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("not_found")
+
+		assert.NoError(t, photoController.Get(c))
 	})
 }
 

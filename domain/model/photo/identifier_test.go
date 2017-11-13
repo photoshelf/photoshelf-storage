@@ -1,6 +1,7 @@
 package photo
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -28,4 +29,11 @@ func TestIdentifier_Value(t *testing.T) {
 			assert.NotContains(t, id.value, target)
 		}
 	})
+}
+
+func ExampleIdentifier_Value() {
+	id := IdentifierOf("example_id")
+	fmt.Println(id.Value())
+	// Output:
+	// example_id
 }

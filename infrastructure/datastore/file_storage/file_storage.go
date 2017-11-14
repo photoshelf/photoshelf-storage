@@ -18,7 +18,7 @@ func New(baseDir string) *FileStorage {
 
 func (storage *FileStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.Id()
+	id := photograph.ID()
 	if photograph.IsNew() {
 		id = *photo.NewIdentifier(data)
 	}
@@ -40,8 +40,5 @@ func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 }
 
 func (storage *FileStorage) Delete(id photo.Identifier) error {
-	if err := os.Remove(path.Join(storage.baseDir, id.Value())); err != nil {
-		return err
-	}
-	return nil
+	return os.Remove(path.Join(storage.baseDir, id.Value()))
 }

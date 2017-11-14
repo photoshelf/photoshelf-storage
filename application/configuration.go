@@ -1,7 +1,6 @@
 package application
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/facebookgo/inject"
@@ -38,10 +37,7 @@ func (configuration *Configuration) Set(path string) error {
 	if err != nil {
 		return err
 	}
-	if err := yaml.Unmarshal(configurationFile, configuration); err != nil {
-		return err
-	}
-	return nil
+	return yaml.Unmarshal(configurationFile, configuration)
 }
 
 func load() *Configuration {
@@ -90,7 +86,7 @@ func Configure() (*Configuration, error) {
 			return nil, err
 		}
 	default:
-		return nil, errors.New(fmt.Sprintf("unknown storage type : %s", configuration.Storage.Type))
+		return nil, fmt.Errorf("unknown storage type : %s", configuration.Storage.Type)
 	}
 
 	photoController := controller.New()

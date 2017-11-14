@@ -21,7 +21,7 @@ func New(path string) (*LeveldbStorage, error) {
 
 func (storage *LeveldbStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.Id()
+	id := photograph.ID()
 	if photograph.IsNew() {
 		id = *photo.NewIdentifier(data)
 	}

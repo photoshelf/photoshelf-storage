@@ -55,7 +55,7 @@ func TestLeveldbStorage_Save(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			t.Run("returns identifier has same value", func(t *testing.T) {
-				actual := photograph.Id()
+				actual := photograph.ID()
 				assert.EqualValues(t, actual.Value(), identifier.Value())
 			})
 

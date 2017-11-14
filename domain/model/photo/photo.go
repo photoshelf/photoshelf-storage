@@ -17,7 +17,7 @@ func (photo *Photo) Image() []byte {
 	return photo.image
 }
 
-func (photo *Photo) Id() Identifier {
+func (photo *Photo) ID() Identifier {
 	return photo.id
 }
 

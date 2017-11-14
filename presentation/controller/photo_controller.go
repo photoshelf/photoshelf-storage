@@ -57,7 +57,7 @@ func (controller *photoControllerImpl) Post(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, view.Created{Id: id.Value()})
+	return c.JSON(http.StatusCreated, view.Created{ID: id.Value()})
 }
 
 func (controller *photoControllerImpl) Put(c echo.Context) error {

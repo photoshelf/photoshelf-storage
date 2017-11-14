@@ -27,7 +27,7 @@ func New(path string) (*BoltdbStorage, error) {
 
 func (storage *BoltdbStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.Id()
+	id := photograph.ID()
 	if photograph.IsNew() {
 		id = *photo.NewIdentifier(data)
 	}

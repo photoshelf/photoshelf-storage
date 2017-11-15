@@ -17,4 +17,4 @@ VOLUME /photoshelf/photos
 
 EXPOSE 1323
 
-CMD ["./photoshelf-storage", "-d", "/photoshelf/photos"]
+CMD ["./photoshelf-storage", "-s", "/photoshelf/photos/db"]

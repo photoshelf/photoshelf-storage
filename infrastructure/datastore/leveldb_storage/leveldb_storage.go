@@ -1,7 +1,6 @@
 package leveldb_storage
 
 import (
-	"github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -36,7 +35,10 @@ func (storage *LeveldbStorage) Save(photograph photo.Photo) (*photo.Identifier, 
 func (storage *LeveldbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 	data, err := storage.db.Get([]byte(id.Value()), nil)
 	if err != nil {
-		return nil, errors.NotFound(id.Value())
+		if err == leveldb.ErrNotFound {
+			return nil, &photo.ResourceError{ID: id, Err: photo.ErrNotFound}
+		}
+		return nil, &photo.ResourceError{ID: id, Err: err}
 	}
 
 	return photo.Of(id, data), nil

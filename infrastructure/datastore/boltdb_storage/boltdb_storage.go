@@ -2,7 +2,6 @@ package boltdb_storage
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 )
 
@@ -46,12 +45,12 @@ func (storage *BoltdbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 	if err := storage.db.Update(func(tx *bolt.Tx) error {
 		data := tx.Bucket([]byte("photos")).Get([]byte(id.Value()))
 		if data == nil {
-			return errors.NotFound(id.Value())
+			return photo.ErrNotFound
 		}
 		photograph = photo.Of(id, data)
 		return nil
 	}); err != nil {
-		return nil, err
+		return nil, &photo.ResourceError{ID: id, Err: err}
 	}
 
 	return photograph, nil

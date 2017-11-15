@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
-	appErrors "github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/application/mock_service"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/stretchr/testify/assert"
@@ -52,7 +51,7 @@ func TestPhotoController_Get(t *testing.T) {
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
 			Find(*photo.IdentifierOf("not_found")).
-			Return(nil, errors.New("file not found"))
+			Return(nil, errors.New("error not found"))
 
 		photoController := &photoControllerImpl{mockPhotoService}
 
@@ -74,7 +73,7 @@ func TestPhotoController_Get(t *testing.T) {
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
 			Find(*photo.IdentifierOf("not_found")).
-			Return(nil, appErrors.NotFound("not_found"))
+			Return(nil, &photo.ResourceError{ID: *photo.IdentifierOf("not_found"), Err: photo.ErrNotFound})
 
 		photoController := &photoControllerImpl{mockPhotoService}
 

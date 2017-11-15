@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
-	"github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"github.com/photoshelf/photoshelf-storage/presentation/view"
@@ -30,13 +29,13 @@ func (controller *photoControllerImpl) Get(c echo.Context) error {
 	id := photo.IdentifierOf(c.Param("id"))
 	photograph, err := controller.Service.Find(*id)
 	if err != nil {
-		log.Error(err)
-		switch e := err.(type) {
-		case errors.NotFoundError:
-			return c.JSON(http.StatusNotFound, e.Error())
-		default:
-			return e
+		if e, success := err.(*photo.ResourceError); success {
+			if e.Err == photo.ErrNotFound {
+				return c.NoContent(http.StatusNotFound)
+			}
 		}
+		log.Error(err)
+		return err
 	}
 
 	mimeType := http.DetectContentType(photograph.Image())

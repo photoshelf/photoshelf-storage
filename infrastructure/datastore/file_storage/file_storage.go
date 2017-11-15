@@ -1,11 +1,11 @@
 package file_storage
 
 import (
-	"github.com/photoshelf/photoshelf-storage/application/errors"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
 	"io/ioutil"
 	"os"
 	"path"
+	"syscall"
 )
 
 type FileStorage struct {
@@ -33,7 +33,12 @@ func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 	filename := path.Join(storage.baseDir, id.Value())
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, errors.NotFound(id.Value())
+		pathErr := err.(*os.PathError)
+		errno := pathErr.Err.(syscall.Errno)
+		if errno == syscall.ENOENT {
+			return nil, &photo.ResourceError{ID: id, Err: photo.ErrNotFound}
+		}
+		return nil, &photo.ResourceError{ID: id, Err: err}
 	}
 
 	return photo.Of(id, data), nil

@@ -1,19 +1,15 @@
 package router
 
 import (
-	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/gommon/log"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/presentation/mock_controller"
-	"net"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestLoad(t *testing.T) {
-
-	port := randomPort(t)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -30,29 +26,25 @@ func TestLoad(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	go func() {
-		log.Info(e.Start(fmt.Sprintf(":%s", port)))
-	}()
-
-	entrypoint := fmt.Sprintf("http://127.0.0.1:%s/photos/", port) + "%s"
+	server := httptest.NewServer(e)
+	client := server.Client()
 
 	t.Run("route GET /photos/:id", func(t *testing.T) {
-		_, err := http.Get(fmt.Sprintf(entrypoint, "test"))
+		_, err := client.Get(server.URL + "/photos/test")
 		if err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("route POST /photos/", func(t *testing.T) {
-		_, err := http.Post(fmt.Sprintf(entrypoint, ""), "application/json", nil)
+		_, err := client.Post(server.URL+"/photos/", "application/json", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("routes PUT /photos/:id", func(t *testing.T) {
-		client := &http.Client{}
-		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf(entrypoint, "test"), nil)
+		req, err := http.NewRequest(http.MethodPut, server.URL+"/photos/test", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -63,8 +55,7 @@ func TestLoad(t *testing.T) {
 	})
 
 	t.Run("routes DELETE /photos/:id", func(t *testing.T) {
-		client := &http.Client{}
-		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf(entrypoint, "test"), nil)
+		req, err := http.NewRequest(http.MethodDelete, server.URL+"/photos/test", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -73,18 +64,4 @@ func TestLoad(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-}
-
-func randomPort(t *testing.T) string {
-	t.Helper()
-
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	addr := listener.Addr().String()
-	_, port, err := net.SplitHostPort(addr)
-	listener.Close()
-
-	return port
 }

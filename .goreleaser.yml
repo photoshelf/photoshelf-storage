@@ -1,0 +1,22 @@
+builds:
+  - binary: photoshelf-storage
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - 386
+archive:
+  format: zip
+  name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+  files:
+    - README.md
+  replacements:
+    darwin: mac
+    amd64: 64bit
+    386: 32bit
+release:
+  github:
+    owner: photoshelf
+    name: photoshelf-storage

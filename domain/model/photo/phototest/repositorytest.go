@@ -16,6 +16,7 @@ func init() {
 }
 
 func RandomTestData(tb testing.TB) [][]byte {
+	tb.Helper()
 	if instance.randomData == nil {
 		max := 20000000 // 20MB
 		for i := 0; i < 20; i++ {

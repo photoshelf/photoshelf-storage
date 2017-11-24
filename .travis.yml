@@ -5,7 +5,7 @@ services:
 before_install:
   - docker build -t photoshelf/photoshelf-storage .
 script:
-  - docker run --rm photoshelf/photoshelf-storage go test -bench=. ./infrastructure/datastore/... -run Benchmark -v -benchmem -benchtime 5s
+  - test "TRAVIS_EVENT_TYPE" == "cron" && docker run --rm photoshelf/photoshelf-storage go test -bench=. ./infrastructure/datastore/... -run Benchmark -v -benchmem -benchtime 5s || echo "Skip benchmark"
   - docker run --rm -e TRAVIS_BRANCH=$TRAVIS_BRANCH photoshelf/photoshelf-storage goveralls -repotoken $COVERALLS_TOKEN
 after_success:
   - test -n "$TRAVIS_TAG" && curl -sL https://git.io/goreleaser | bash

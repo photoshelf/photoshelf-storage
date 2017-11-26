@@ -1,12 +1,14 @@
-sudo:
-  - required
-services:
-  - docker
+language: go
+go:
+  - 1.9
 before_install:
-  - docker build -t photoshelf/photoshelf-storage .
+  - go get github.com/golang/dep/...
+  - go get github.com/mattn/goveralls
+install:
+  - dep ensure
 script:
-  - test "TRAVIS_EVENT_TYPE" == "cron" && docker run --rm photoshelf/photoshelf-storage go test -bench=. ./infrastructure/datastore/... -run Benchmark -v -benchmem -benchtime 5s || echo "Skip benchmark"
-  - docker run --rm -e TRAVIS_BRANCH=$TRAVIS_BRANCH photoshelf/photoshelf-storage goveralls -repotoken $COVERALLS_TOKEN
+  - test "$TRAVIS_EVENT_TYPE" == "cron" && go test -bench=. ./infrastructure/datastore/... -run Benchmark -v -benchmem -benchtime 5s || echo "Skip benchmark"
+  - goveralls -service=travis-ci
 after_success:
   - test -n "$TRAVIS_TAG" && curl -sL https://git.io/goreleaser | bash
 notifications:

@@ -1,6 +1,7 @@
 builds:
   - binary: photoshelf-storage
     goos:
+      - windows
       - darwin
       - linux
     goarch:

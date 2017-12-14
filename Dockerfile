@@ -7,7 +7,8 @@ WORKDIR /go/src/github.com/photoshelf/photoshelf-storage
 
 ADD . .
 
-RUN dep ensure
+RUN go get -u github.com/golang/dep/cmd/dep && \
+    dep ensure
 
 RUN go build
 

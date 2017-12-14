@@ -7,6 +7,11 @@
 Image upload server with REST API.
 
 ## Run Server
+### Using Docker
+```bash
+docker run photoshelf/photoshelf-storage
+```
+
 ### Locally
 build executable file.
 ```bash

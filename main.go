@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	conf, err := application.Configure()
+	conf, err := application.Configure(os.Args[1:]...)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(-1)

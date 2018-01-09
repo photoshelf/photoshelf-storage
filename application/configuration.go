@@ -13,6 +13,7 @@ import (
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 )
 
 type Configuration struct {
@@ -40,35 +41,36 @@ func (configuration *Configuration) Set(path string) error {
 	return yaml.Unmarshal(configurationFile, configuration)
 }
 
-func load() *Configuration {
+func load(args ...string) *Configuration {
 	configuration := &Configuration{}
 
-	flag.Var(configuration, "c", "configuration file path")
-	flag.IntVar(
+	flg := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flg.Var(configuration, "c", "configuration file path")
+	flg.IntVar(
 		&configuration.Server.Port,
 		"p",
 		1323,
 		"port number",
 	)
-	flag.StringVar(
+	flg.StringVar(
 		&configuration.Storage.Type,
 		"t",
 		"boltdb",
 		"storage type [file|leveldb|boltdb]",
 	)
-	flag.StringVar(
+	flg.StringVar(
 		&configuration.Storage.Path,
 		"s",
 		"./photos",
 		"storage path",
 	)
-	flag.Parse()
+	flg.Parse(args)
 
 	return configuration
 }
 
-func Configure() (*Configuration, error) {
-	configuration := load()
+func Configure(args ...string) (*Configuration, error) {
+	configuration := load(args...)
 
 	var repository photo.Repository
 	var err error

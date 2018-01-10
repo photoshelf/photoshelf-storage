@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.9
+  - 1.9.2
 before_install:
   - go get github.com/golang/dep/...
   - go get github.com/mattn/goveralls

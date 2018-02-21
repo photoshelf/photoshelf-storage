@@ -18,15 +18,15 @@ func New(baseDir string) *FileStorage {
 
 func (storage *FileStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.ID()
+	id := photograph.Id()
 	if photograph.IsNew() {
-		id = *photo.NewIdentifier(data)
+		id = photo.NewIdentifier(data)
 	}
 
 	filename := path.Join(storage.baseDir, id.Value())
 	ioutil.WriteFile(filename, data, 0600)
 
-	return &id, nil
+	return id, nil
 }
 
 func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {

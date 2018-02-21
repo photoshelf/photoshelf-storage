@@ -19,7 +19,7 @@ func TestOf(t *testing.T) {
 
 func TestPhoto_ID(t *testing.T) {
 	instance := Of(*IdentifierOf("id"), []byte("image"))
-	actual := instance.ID()
+	actual := instance.Id()
 	assert.Equal(t, "id", actual.value)
 }
 

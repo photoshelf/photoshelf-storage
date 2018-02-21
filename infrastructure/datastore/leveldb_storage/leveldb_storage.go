@@ -20,16 +20,16 @@ func New(path string) (*LeveldbStorage, error) {
 
 func (storage *LeveldbStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.ID()
+	id := photograph.Id()
 	if photograph.IsNew() {
-		id = *photo.NewIdentifier(data)
+		id = photo.NewIdentifier(data)
 	}
 
 	if err := storage.db.Put([]byte(id.Value()), data, nil); err != nil {
 		return nil, err
 	}
 
-	return &id, nil
+	return id, nil
 }
 
 func (storage *LeveldbStorage) Read(id photo.Identifier) (*photo.Photo, error) {

@@ -37,10 +37,7 @@ func (ctrl *grpcPhotoControllerImpl) Find(ctx context.Context, req *protobuf.Id)
 	if err != nil {
 		return nil, err
 	}
-
-	identifier := photograph.ID()
-	ptr := &identifier
-	return &protobuf.Photo{Id: &protobuf.Id{Value: ptr.Value()}, Image: photograph.Image()}, nil
+	return &protobuf.Photo{Id: &protobuf.Id{Value: photograph.Id().Value()}, Image: photograph.Image()}, nil
 }
 
 func (ctrl *grpcPhotoControllerImpl) Delete(ctx context.Context, req *protobuf.Id) (*protobuf.Empty, error) {

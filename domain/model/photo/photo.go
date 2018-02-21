@@ -1,23 +1,23 @@
 package photo
 
 type Photo struct {
-	id    Identifier
+	id    *Identifier
 	image []byte
 }
 
 func New(data []byte) *Photo {
-	return &Photo{Identifier{}, data}
+	return &Photo{&Identifier{}, data}
 }
 
 func Of(id Identifier, data []byte) *Photo {
-	return &Photo{id, data}
+	return &Photo{&id, data}
 }
 
 func (photo *Photo) Image() []byte {
 	return photo.image
 }
 
-func (photo *Photo) ID() Identifier {
+func (photo *Photo) Id() *Identifier {
 	return photo.id
 }
 

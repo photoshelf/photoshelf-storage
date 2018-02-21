@@ -3,7 +3,7 @@ package controller
 import (
 	"github.com/photoshelf/photoshelf-storage/application/service"
 	"github.com/photoshelf/photoshelf-storage/domain/model/photo"
-	"github.com/photoshelf/photoshelf-storage/infrastructure/protobuf"
+	"github.com/photoshelf/photoshelf-storage/presentation/protobuf"
 	"golang.org/x/net/context"
 )
 
@@ -33,14 +33,14 @@ func (ctrl *grpcPhotoControllerImpl) Save(ctx context.Context, req *protobuf.Pho
 
 func (ctrl *grpcPhotoControllerImpl) Find(ctx context.Context, req *protobuf.Id) (*protobuf.Photo, error) {
 	id := photo.IdentifierOf(req.Value)
-	model, err := ctrl.Service.Find(*id)
+	photograph, err := ctrl.Service.Find(*id)
 	if err != nil {
 		return nil, err
 	}
 
-	identifier := model.ID()
+	identifier := photograph.ID()
 	ptr := &identifier
-	return &protobuf.Photo{Id: &protobuf.Id{Value: ptr.Value()}, Image: model.Image()}, nil
+	return &protobuf.Photo{Id: &protobuf.Id{Value: ptr.Value()}, Image: photograph.Image()}, nil
 }
 
 func (ctrl *grpcPhotoControllerImpl) Delete(ctx context.Context, req *protobuf.Id) (*protobuf.Empty, error) {

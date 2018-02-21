@@ -5,9 +5,11 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/presentation/controller"
+	"github.com/photoshelf/photoshelf-storage/presentation/protobuf"
+	"google.golang.org/grpc"
 )
 
-func Load() (*echo.Echo, error) {
+func LoadEchoServer() (*echo.Echo, error) {
 	e := echo.New()
 	e.HideBanner = true
 
@@ -24,4 +26,15 @@ func Load() (*echo.Echo, error) {
 	e.Use(middleware.BodyLimit("20M"))
 
 	return e, nil
+}
+
+func LoadGrpcServer() *grpc.Server {
+	s := grpc.NewServer()
+
+	photoServiceServer := controller.NewGrpcPhotoController()
+	container.Get(&photoServiceServer)
+
+	protobuf.RegisterPhotoServiceServer(s, photoServiceServer)
+
+	return s
 }

@@ -21,7 +21,7 @@ func TestLoad(t *testing.T) {
 	con.EXPECT().Delete(gomock.Any()).Times(1)
 	container.Set(con)
 
-	e, err := Load()
+	e, err := LoadEchoServer()
 	if err != nil {
 		t.Fatal(err)
 	}

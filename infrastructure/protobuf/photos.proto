@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package protobuf;
+
+service PhotoService {
+    rpc Save (Photo) returns (Id);
+    rpc Find (Id) returns (Photo);
+    rpc Delete (Id) returns (Empty);
+}
+
+message Id {
+    string value = 1;
+}
+
+message Photo {
+    Id id = 1;
+    bytes image = 2;
+}
+
+message Empty {
+}

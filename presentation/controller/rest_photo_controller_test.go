@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func TestPhotoController_Get(t *testing.T) {
+func TestRestPhotoController_Get(t *testing.T) {
 	t.Run("when service no error, returns bytes", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -89,7 +89,7 @@ func TestPhotoController_Get(t *testing.T) {
 	})
 }
 
-func TestPhotoController_Post(t *testing.T) {
+func TestRestPhotoController_Post(t *testing.T) {
 	t.Run("when service no error, returns status created", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -178,7 +178,7 @@ func TestPhotoController_Post(t *testing.T) {
 	})
 }
 
-func TestPhotoController_Put(t *testing.T) {
+func TestRestPhotoController_Put(t *testing.T) {
 	t.Run("when service no error, returns identifier", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -297,7 +297,7 @@ func TestPhotoController_Put(t *testing.T) {
 	})
 }
 
-func TestPhotoController_Delete(t *testing.T) {
+func TestRestPhotoController_Delete(t *testing.T) {
 	t.Run("when service no error, returns status ok", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 

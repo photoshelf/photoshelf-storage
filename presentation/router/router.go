@@ -9,6 +9,7 @@ import (
 
 func Load() (*echo.Echo, error) {
 	e := echo.New()
+	e.HideBanner = true
 
 	photoController := controller.NewRestPhotoController()
 	container.Get(&photoController)

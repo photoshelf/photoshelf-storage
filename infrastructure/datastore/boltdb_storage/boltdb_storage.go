@@ -26,9 +26,9 @@ func New(path string) (*BoltdbStorage, error) {
 
 func (storage *BoltdbStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.ID()
+	id := photograph.Id()
 	if photograph.IsNew() {
-		id = *photo.NewIdentifier(data)
+		id = photo.NewIdentifier(data)
 	}
 
 	if err := storage.db.Update(func(tx *bolt.Tx) error {
@@ -37,7 +37,7 @@ func (storage *BoltdbStorage) Save(photograph photo.Photo) (*photo.Identifier, e
 		return nil, err
 	}
 
-	return &id, nil
+	return id, nil
 }
 
 func (storage *BoltdbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
@@ -50,7 +50,7 @@ func (storage *BoltdbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 		photograph = photo.Of(id, data)
 		return nil
 	}); err != nil {
-		return nil, &photo.ResourceError{ID: id, Err: err}
+		return nil, &photo.ResourceError{Id: id, Err: err}
 	}
 
 	return photograph, nil

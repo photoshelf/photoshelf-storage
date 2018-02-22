@@ -19,6 +19,7 @@ import (
 type Configuration struct {
 	Server struct {
 		Port int
+		Mode string
 	}
 	Storage struct {
 		Type string
@@ -64,6 +65,12 @@ func load(args ...string) *Configuration {
 		"./photos",
 		"storage path",
 	)
+	flg.StringVar(
+		&configuration.Server.Mode,
+		"m",
+		"rest",
+		"server mode [rest|grpc]",
+	)
 	flg.Parse(args)
 
 	return configuration
@@ -91,11 +98,17 @@ func Configure(args ...string) (*Configuration, error) {
 		return nil, fmt.Errorf("unknown storage type : %s", configuration.Storage.Type)
 	}
 
-	photoController := controller.New()
-	if err := inject.Populate(photoController, service.New(), repository); err != nil {
+	restPhotoController := controller.NewRestPhotoController()
+	if err := inject.Populate(restPhotoController, service.New(), repository); err != nil {
 		return nil, err
 	}
-	container.Set(photoController)
+	container.Set(restPhotoController)
+
+	grpcPhotoController := controller.NewGrpcPhotoController()
+	if err := inject.Populate(grpcPhotoController, service.New(), repository); err != nil {
+		return nil, err
+	}
+	container.Set(grpcPhotoController)
 
 	return configuration, nil
 }

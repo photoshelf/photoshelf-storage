@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func TestPhotoController_Get(t *testing.T) {
+func TestRestPhotoController_Get(t *testing.T) {
 	t.Run("when service no error, returns bytes", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -29,7 +29,7 @@ func TestPhotoController_Get(t *testing.T) {
 			Find(*identifier).
 			Return(photo.Of(*identifier, readTestData(t)), nil)
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -53,7 +53,7 @@ func TestPhotoController_Get(t *testing.T) {
 			Find(*photo.IdentifierOf("not_found")).
 			Return(nil, errors.New("error not found"))
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -73,9 +73,9 @@ func TestPhotoController_Get(t *testing.T) {
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
 			Find(*photo.IdentifierOf("not_found")).
-			Return(nil, &photo.ResourceError{ID: *photo.IdentifierOf("not_found"), Err: photo.ErrNotFound})
+			Return(nil, &photo.ResourceError{Id: *photo.IdentifierOf("not_found"), Err: photo.ErrNotFound})
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.GET, "/", nil)
@@ -89,7 +89,7 @@ func TestPhotoController_Get(t *testing.T) {
 	})
 }
 
-func TestPhotoController_Post(t *testing.T) {
+func TestRestPhotoController_Post(t *testing.T) {
 	t.Run("when service no error, returns status created", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -101,7 +101,7 @@ func TestPhotoController_Post(t *testing.T) {
 			Save(gomock.Any()).
 			Return(identifier, nil)
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
@@ -135,7 +135,7 @@ func TestPhotoController_Post(t *testing.T) {
 			Save(gomock.Any()).
 			Return(nil, errors.New("mock error"))
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
@@ -167,7 +167,7 @@ func TestPhotoController_Post(t *testing.T) {
 			Save(*identifier).
 			Times(0)
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.POST, "/", nil)
@@ -178,7 +178,7 @@ func TestPhotoController_Post(t *testing.T) {
 	})
 }
 
-func TestPhotoController_Put(t *testing.T) {
+func TestRestPhotoController_Put(t *testing.T) {
 	t.Run("when service no error, returns identifier", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -190,7 +190,7 @@ func TestPhotoController_Put(t *testing.T) {
 			Save(*photo.Of(*identifier, readTestData(t))).
 			Return(identifier, nil)
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
@@ -227,7 +227,7 @@ func TestPhotoController_Put(t *testing.T) {
 			Save(*photo.Of(*identifier, readTestData(t))).
 			Return(nil, errors.New("mock error"))
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
@@ -262,7 +262,7 @@ func TestPhotoController_Put(t *testing.T) {
 			Save(*identifier).
 			Times(0)
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.PUT, "/", nil)
@@ -297,7 +297,7 @@ func TestPhotoController_Put(t *testing.T) {
 	})
 }
 
-func TestPhotoController_Delete(t *testing.T) {
+func TestRestPhotoController_Delete(t *testing.T) {
 	t.Run("when service no error, returns status ok", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
@@ -309,7 +309,7 @@ func TestPhotoController_Delete(t *testing.T) {
 			Delete(*identifier).
 			Return(nil)
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.DELETE, "/", nil)
@@ -324,7 +324,7 @@ func TestPhotoController_Delete(t *testing.T) {
 		}
 	})
 
-	t.Run("when service no error, returns error", func(t *testing.T) {
+	t.Run("when service error, returns error", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
@@ -335,7 +335,7 @@ func TestPhotoController_Delete(t *testing.T) {
 			Delete(*identifier).
 			Return(errors.New("error"))
 
-		photoController := &photoControllerImpl{mockPhotoService}
+		photoController := &restPhotoControllerImpl{mockPhotoService}
 
 		e := echo.New()
 		req := httptest.NewRequest(echo.DELETE, "/", nil)

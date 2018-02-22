@@ -18,15 +18,15 @@ func New(baseDir string) *FileStorage {
 
 func (storage *FileStorage) Save(photograph photo.Photo) (*photo.Identifier, error) {
 	data := photograph.Image()
-	id := photograph.ID()
+	id := photograph.Id()
 	if photograph.IsNew() {
-		id = *photo.NewIdentifier(data)
+		id = photo.NewIdentifier(data)
 	}
 
 	filename := path.Join(storage.baseDir, id.Value())
 	ioutil.WriteFile(filename, data, 0600)
 
-	return &id, nil
+	return id, nil
 }
 
 func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {
@@ -36,9 +36,9 @@ func (storage *FileStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 		pathErr := err.(*os.PathError)
 		errno := pathErr.Err.(syscall.Errno)
 		if errno == syscall.ENOENT {
-			return nil, &photo.ResourceError{ID: id, Err: photo.ErrNotFound}
+			return nil, &photo.ResourceError{Id: id, Err: photo.ErrNotFound}
 		}
-		return nil, &photo.ResourceError{ID: id, Err: err}
+		return nil, &photo.ResourceError{Id: id, Err: err}
 	}
 
 	return photo.Of(id, data), nil

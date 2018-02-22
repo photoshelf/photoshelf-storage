@@ -11,10 +11,10 @@ var (
 )
 
 type ResourceError struct {
-	ID  Identifier
+	Id  Identifier
 	Err error
 }
 
 func (err *ResourceError) Error() string {
-	return fmt.Sprintf("%s: %s", err.ID, err.Error())
+	return fmt.Sprintf("%s: %s", err.Id.value, err.Err.Error())
 }

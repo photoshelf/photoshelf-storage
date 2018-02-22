@@ -4,12 +4,14 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/photoshelf/photoshelf-storage/infrastructure/container"
 	"github.com/photoshelf/photoshelf-storage/presentation/mock_controller"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func TestLoad(t *testing.T) {
+func TestLoadEchoServer(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -21,7 +23,7 @@ func TestLoad(t *testing.T) {
 	con.EXPECT().Delete(gomock.Any()).Times(1)
 	container.Set(con)
 
-	e, err := Load()
+	e, err := LoadEchoServer()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,4 +66,10 @@ func TestLoad(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+}
+
+func TestLoadGrpcServer(t *testing.T) {
+	s := LoadGrpcServer()
+
+	assert.IsType(t, &grpc.Server{}, s)
 }

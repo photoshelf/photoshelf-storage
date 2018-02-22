@@ -102,7 +102,7 @@ func TestGrpcPhotoController_Delete(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("when service no error, returns error", func(t *testing.T) {
+	t.Run("when service error, returns error", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)
@@ -116,6 +116,6 @@ func TestGrpcPhotoController_Delete(t *testing.T) {
 		photoController := &grpcPhotoControllerImpl{mockPhotoService}
 
 		_, err := photoController.Delete(context.Background(), &protobuf.Id{Value: identifier.Value()})
-		assert.NoError(t, err)
+		assert.Error(t, err)
 	})
 }

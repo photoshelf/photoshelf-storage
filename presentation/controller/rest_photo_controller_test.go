@@ -324,7 +324,7 @@ func TestRestPhotoController_Delete(t *testing.T) {
 		}
 	})
 
-	t.Run("when service no error, returns error", func(t *testing.T) {
+	t.Run("when service error, returns error", func(t *testing.T) {
 		identifier := photo.IdentifierOf("e3158990bdee63f8594c260cd51a011d")
 
 		ctrl := gomock.NewController(t)

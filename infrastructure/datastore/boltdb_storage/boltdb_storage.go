@@ -50,7 +50,7 @@ func (storage *BoltdbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 		photograph = photo.Of(id, data)
 		return nil
 	}); err != nil {
-		return nil, &photo.ResourceError{ID: id, Err: err}
+		return nil, &photo.ResourceError{Id: id, Err: err}
 	}
 
 	return photograph, nil

@@ -73,7 +73,7 @@ func TestRestPhotoController_Get(t *testing.T) {
 		mockPhotoService := mock_service.NewMockPhotoService(ctrl)
 		mockPhotoService.EXPECT().
 			Find(*photo.IdentifierOf("not_found")).
-			Return(nil, &photo.ResourceError{ID: *photo.IdentifierOf("not_found"), Err: photo.ErrNotFound})
+			Return(nil, &photo.ResourceError{Id: *photo.IdentifierOf("not_found"), Err: photo.ErrNotFound})
 
 		photoController := &restPhotoControllerImpl{mockPhotoService}
 

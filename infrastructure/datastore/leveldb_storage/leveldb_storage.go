@@ -36,9 +36,9 @@ func (storage *LeveldbStorage) Read(id photo.Identifier) (*photo.Photo, error) {
 	data, err := storage.db.Get([]byte(id.Value()), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
-			return nil, &photo.ResourceError{ID: id, Err: photo.ErrNotFound}
+			return nil, &photo.ResourceError{Id: id, Err: photo.ErrNotFound}
 		}
-		return nil, &photo.ResourceError{ID: id, Err: err}
+		return nil, &photo.ResourceError{Id: id, Err: err}
 	}
 
 	return photo.Of(id, data), nil

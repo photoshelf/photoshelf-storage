@@ -65,3 +65,6 @@ fabric.properties
 
 ## vendor directory
 vendor/
+
+## vgo sum
+go.sum

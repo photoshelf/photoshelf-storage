@@ -20,7 +20,7 @@ require (
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4
 	golang.org/x/crypto v0.0.0-20180802221240-56440b844dfe
 	golang.org/x/net v0.0.0-20180801234040-f4c29de78a2a
-	golang.org/x/sys v0.0.0-20180109180726-b9cf5f96b68d
+	golang.org/x/sys v0.0.0-20180802203216-0ffbfd41fbef
 	golang.org/x/text v0.3.0
 	google.golang.org/genproto v0.0.0-20180709204101-e92b11657268
 	google.golang.org/grpc v1.14.0
